@@ -1,0 +1,222 @@
+openapi: 3.0.3
+
+info:
+  title: Сервис Gophkeeper
+  description: Система хранения приватной информации
+  version: 1.0.0
+
+servers:
+  - url: /
+
+paths:
+  /api/user/register:
+    post:
+      description: Регистрация пользователя
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegisterRequest'
+
+      responses:
+        200:
+          description: пользователь успешно зарегистрирован и аутентифицирован
+          headers:
+            Authorization:
+              description: Токен авторизации
+              schema:
+                type: string
+                example: hdd8fh84t8if5h489rghe9jfisodjfpjerhgf4j0f
+        400:
+          description: неверный формат запроса
+        409:
+          description: логин уже занят
+        500:
+          description: внутренняя ошибка сервера
+
+  /api/user/login:
+    post:
+      description: Аутентификация пользователя
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLoginRequest'
+
+      responses:
+        200:
+          description: пользователь успешно аутентифицирован
+          headers:
+            Authorization:
+              description: Токен авторизации
+              schema:
+                type: string
+                example: hdd8fh84t8if5h489rghe9jfisodjfpjerhgf4j0f
+        400:
+          description: неверный формат запроса
+        401:
+          description: неверная пара логин/пароль
+        500:
+          description: внутренняя ошибка сервера
+
+  /api/data/{type}/sync:
+    post:
+      description: Синхронизация данных
+      parameters:
+        - in: path
+          required: true
+          name: type
+          schema:
+            $ref: '#/components/schemas/typeEnum'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataSyncRequest'
+
+      responses:
+        200:
+          description: синхронизация прошла успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataSyncResponse'
+        400:
+          description: неверный формат запроса
+        401:
+          description: пользователь не авторизован
+        500:
+          description: внутренняя ошибка сервера
+
+components:
+  schemas:
+    UserRegisterRequest:
+      type: object
+      properties:
+        login:
+          type: string
+          example: test@gmail.com
+        password:
+          type: string
+          example: rj94th9ro
+
+    UserLoginRequest:
+      type: object
+      properties:
+        login:
+          type: string
+          example: test@gmail.com
+        password:
+          type: string
+          example: rj94th9ro
+
+    DataSyncRequest:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ItemRequest'
+
+    ItemRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          description: id элемента
+          example: 0664b999-fdfc-4f2f-9c35-dace58da6400
+        type:
+          $ref: '#/components/schemas/typeEnum'
+        data:
+          description: Данные, которые необходимо синхронизировать
+          oneOf:
+            - $ref: "#/components/schemas/LoginData"
+            - $ref: "#/components/schemas/CardData"
+        isDeleted:
+          type: boolean
+          description: Определяет, была ли удалена запись на стороне клиента
+          example: false
+        updatedAt:
+          type: string
+          description: время обновления/создания записи в формате RFC3339
+          example: 2020-12-10T15:15:45+00:00
+        meta:
+          $ref: "#/components/schemas/Meta"
+
+    DataSyncResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ItemResponse'
+
+    ItemResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: id элемента
+          example: 0664b999-fdfc-4f2f-9c35-dace58da6400
+        type:
+          type: string
+          enum:
+            - login
+            - card
+          example: login
+        data:
+          description: Данные, которые необходимо синхронизировать
+          oneOf:
+            - $ref: "#/components/schemas/LoginData"
+            - $ref: "#/components/schemas/CardData"
+        updatedAt:
+          type: string
+          description: время обновления/создания записи в формате RFC3339
+          example: 2020-12-10T15:15:45+03:00
+        meta:
+          $ref: "#/components/schemas/Meta"
+
+    LoginData:
+      type: object
+      properties:
+        login:
+          type: string
+          example: user
+        password:
+          type: string
+          example: password
+
+    CardData:
+      type: object
+      properties:
+        number:
+          type: string
+          example: 1234567890123456
+        expireDate:
+          type: string
+          example: 03/28
+        holder:
+          type: string
+          example: Test Testov
+        cvv:
+          type: string
+          example: 123
+
+    Meta:
+      type: object
+      description: метаданные к записи
+      additionalProperties:
+        type: string
+
+    typeEnum:
+      type: string
+      enum:
+        - login
+        - card
+      example: login
+
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      name: Authorization
+      in: header
