@@ -8,7 +8,7 @@ import (
 	"github.com/anoriar/gophkeeper/internal/server/shared/config"
 	"github.com/anoriar/gophkeeper/internal/server/user/services/auth/internal/services/token/jwt"
 
-	errors2 "github.com/anoriar/gophkeeper/internal/server/shared/errors"
+	sharedErrors "github.com/anoriar/gophkeeper/internal/server/shared/errors"
 	"github.com/anoriar/gophkeeper/internal/server/user/dto/auth"
 	"github.com/anoriar/gophkeeper/internal/server/user/dto/requests/login"
 	"github.com/anoriar/gophkeeper/internal/server/user/dto/requests/register"
@@ -22,7 +22,6 @@ import (
 	"go.uber.org/zap"
 )
 
-var ErrUnauthorized = errors.New("user is unauthorized")
 var ErrUserAlreadyExists = errors.New("user already exists")
 
 type AuthService struct {
@@ -60,7 +59,7 @@ func (service *AuthService) RegisterUser(ctx context.Context, registerUserDto re
 	newUser := service.userFactory.Create(registerUserDto.Login, hashedPassword, hex.EncodeToString(salt))
 	err = service.userRepository.AddUser(ctx, newUser)
 	if err != nil {
-		if errors.Is(err, errors2.ErrConflict) {
+		if errors.Is(err, sharedErrors.ErrConflict) {
 			return "", ErrUserAlreadyExists
 		}
 		service.logger.Error(err.Error())
@@ -78,8 +77,8 @@ func (service *AuthService) RegisterUser(ctx context.Context, registerUserDto re
 func (service *AuthService) LoginUser(ctx context.Context, dto login.LoginUserRequestDto) (string, error) {
 	existedUser, err := service.userRepository.GetUserByLogin(ctx, dto.Login)
 	if err != nil {
-		if errors.Is(err, errors2.ErrNotFound) {
-			return "", ErrUnauthorized
+		if errors.Is(err, sharedErrors.ErrNotFound) {
+			return "", sharedErrors.ErrUserUnauthorized
 		}
 		service.logger.Error(err.Error())
 		return "", err
@@ -92,7 +91,7 @@ func (service *AuthService) LoginUser(ctx context.Context, dto login.LoginUserRe
 	hashedPasswordFromRequest := service.passwordService.GenerateHashedPassword(dto.Password, saltInBytes)
 
 	if hashedPasswordFromRequest != existedUser.Password {
-		return "", ErrUnauthorized
+		return "", sharedErrors.ErrUserUnauthorized
 	}
 
 	tokenString, err := service.tokenService.BuildTokenString(auth.UserClaims{UserID: existedUser.ID})
@@ -107,7 +106,7 @@ func (service *AuthService) ValidateToken(token string) (auth.UserClaims, error)
 	claims, err := service.tokenService.GetUserClaims(token)
 	if err != nil {
 		if errors.Is(err, tokenerrors.ErrTokenNotValid) {
-			return auth.UserClaims{}, ErrUnauthorized
+			return auth.UserClaims{}, sharedErrors.ErrUserUnauthorized
 		}
 		service.logger.Error(err.Error())
 		return auth.UserClaims{}, err

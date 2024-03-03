@@ -3,6 +3,7 @@ package login
 import (
 	"encoding/json"
 	"errors"
+	sharedErrors "github.com/anoriar/gophkeeper/internal/server/shared/errors"
 
 	"github.com/anoriar/gophkeeper/internal/server/user/dto/requests/login"
 	"github.com/anoriar/gophkeeper/internal/server/user/handlers/login/internal"
@@ -46,7 +47,7 @@ func (handler *LoginHandler) Login(w http.ResponseWriter, req *http.Request) {
 
 	tokenString, err := handler.authService.LoginUser(req.Context(), *requestDto)
 	if err != nil {
-		if errors.Is(err, auth2.ErrUnauthorized) {
+		if errors.Is(err, sharedErrors.ErrUserUnauthorized) {
 			http.Error(w, "user unauthorized", http.StatusUnauthorized)
 			return
 		}

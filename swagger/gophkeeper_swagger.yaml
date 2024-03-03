@@ -59,15 +59,9 @@ paths:
         500:
           description: внутренняя ошибка сервера
 
-  /api/data/{type}/sync:
+  /api/entries/sync:
     post:
-      description: Синхронизация данных
-      parameters:
-        - in: path
-          required: true
-          name: type
-          schema:
-            $ref: '#/components/schemas/typeEnum'
+      description: Синхронизация данных по типу
       requestBody:
         content:
           application/json:
@@ -116,9 +110,9 @@ components:
         items:
           type: array
           items:
-            $ref: '#/components/schemas/ItemRequest'
+            $ref: '#/components/schemas/EntryRequest'
 
-    ItemRequest:
+    EntryRequest:
       type: object
       properties:
         id:
@@ -149,9 +143,9 @@ components:
         items:
           type: array
           items:
-            $ref: '#/components/schemas/ItemResponse'
+            $ref: '#/components/schemas/EntryResponse'
 
-    ItemResponse:
+    EntryResponse:
       type: object
       properties:
         id:

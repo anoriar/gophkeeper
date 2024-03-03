@@ -1,12 +1,14 @@
 package app
 
 import (
+	entryRepositoryPkg "github.com/anoriar/gophkeeper/internal/server/storage/repository"
+	"github.com/anoriar/gophkeeper/internal/server/storage/services/sync"
 	"go.uber.org/zap"
 
 	dbPkg "github.com/anoriar/gophkeeper/internal/server/shared/app/db"
 	loggerPkg "github.com/anoriar/gophkeeper/internal/server/shared/app/logger"
 	"github.com/anoriar/gophkeeper/internal/server/shared/config"
-	"github.com/anoriar/gophkeeper/internal/server/user/repository"
+	userRepositoryPkg "github.com/anoriar/gophkeeper/internal/server/user/repository"
 	"github.com/anoriar/gophkeeper/internal/server/user/services/auth"
 )
 
@@ -16,6 +18,7 @@ type App struct {
 	Logger      *zap.Logger
 	Database    dbPkg.DatabaseInterface
 	AuthService auth.AuthServiceInterface
+	SyncService sync.SyncServiceInterface
 }
 
 // NewApp missing godoc.
@@ -30,17 +33,21 @@ func NewApp(cnf *config.Config) (*App, error) {
 		return nil, err
 	}
 
-	userRepository := repository.NewUserRepository(db)
+	userRepository := userRepositoryPkg.NewUserRepository(db)
 	authService := auth.NewAuthService(userRepository,
 		cnf,
 		logger,
 	)
+
+	entryRepository := entryRepositoryPkg.NewEntryRepository(db)
+	syncService := sync.NewSyncService(entryRepository, db, logger)
 
 	return &App{
 		Config:      cnf,
 		Logger:      logger,
 		Database:    db,
 		AuthService: authService,
+		SyncService: syncService,
 	}, nil
 }
 

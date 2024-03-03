@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"errors"
+	sharedErrors "github.com/anoriar/gophkeeper/internal/server/shared/errors"
 	"net/http"
 
 	context2 "github.com/anoriar/gophkeeper/internal/server/shared/context"
@@ -26,7 +27,7 @@ func (middleware *AuthMiddleware) Auth(h http.Handler) http.Handler {
 		}
 		claims, err := middleware.authService.ValidateToken(token)
 		if err != nil {
-			if errors.Is(err, auth2.ErrUnauthorized) {
+			if errors.Is(err, sharedErrors.ErrUserUnauthorized) {
 				http.Error(w, "user unauthorized", http.StatusUnauthorized)
 				return
 			}
