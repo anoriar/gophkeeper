@@ -2,7 +2,8 @@ package factory
 
 import (
 	"encoding/json"
-	"github.com/anoriar/gophkeeper/internal/server/storage/dto/request"
+
+	"github.com/anoriar/gophkeeper/internal/server/storage/dto/request/sync"
 	"github.com/anoriar/gophkeeper/internal/server/storage/entity"
 )
 
@@ -13,7 +14,7 @@ func NewEntryFactory() *EntryFactory {
 	return &EntryFactory{}
 }
 
-func (f *EntryFactory) CreateEntryFromRequestItem(requestItem request.SyncRequestItem, userID string) (entity.Entry, error) {
+func (f *EntryFactory) CreateEntryFromRequestItem(requestItem sync.SyncRequestItem, userID string) (entity.Entry, error) {
 	data, err := json.Marshal(requestItem.Data)
 	if err != nil {
 		return entity.Entry{}, err

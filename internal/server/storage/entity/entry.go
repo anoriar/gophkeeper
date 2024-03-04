@@ -2,8 +2,9 @@ package entity
 
 import (
 	"encoding/json"
-	"github.com/anoriar/gophkeeper/internal/server/storage/enum"
 	"time"
+
+	"github.com/anoriar/gophkeeper/internal/server/storage/enum"
 )
 
 type Entry struct {

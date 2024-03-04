@@ -3,8 +3,9 @@ package auth
 import (
 	"context"
 	"errors"
-	sharedErrors "github.com/anoriar/gophkeeper/internal/server/shared/errors"
 	"net/http"
+
+	sharedErrors "github.com/anoriar/gophkeeper/internal/server/shared/errors"
 
 	context2 "github.com/anoriar/gophkeeper/internal/server/shared/context"
 	auth2 "github.com/anoriar/gophkeeper/internal/server/user/services/auth"

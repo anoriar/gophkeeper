@@ -1,4 +1,4 @@
-package request
+package sync
 
 type SyncRequest struct {
 	Items  []SyncRequestItem `json:"items"`

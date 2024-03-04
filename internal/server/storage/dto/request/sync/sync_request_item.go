@@ -1,11 +1,12 @@
-package request
+package sync
 
 import (
 	"encoding/json"
 	"fmt"
+	"time"
+
 	"github.com/anoriar/gophkeeper/internal/server/storage/dto"
 	"github.com/anoriar/gophkeeper/internal/server/storage/enum"
-	"time"
 )
 
 type SyncRequestItem struct {

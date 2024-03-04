@@ -2,12 +2,14 @@ package sync
 
 import (
 	"encoding/json"
-	customCtx "github.com/anoriar/gophkeeper/internal/server/shared/context"
-	"github.com/anoriar/gophkeeper/internal/server/storage/dto/request"
-	"github.com/anoriar/gophkeeper/internal/server/storage/services/sync"
-	"go.uber.org/zap"
 	"io"
 	"net/http"
+
+	"go.uber.org/zap"
+
+	customCtx "github.com/anoriar/gophkeeper/internal/server/shared/context"
+	sync2 "github.com/anoriar/gophkeeper/internal/server/storage/dto/request/sync"
+	"github.com/anoriar/gophkeeper/internal/server/storage/services/sync"
 )
 
 type SyncHandler struct {
@@ -27,7 +29,7 @@ func (sh *SyncHandler) Sync(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	var syncRequest request.SyncRequest
+	var syncRequest sync2.SyncRequest
 	err = json.Unmarshal(requestBody, &syncRequest)
 
 	if err != nil {
@@ -65,14 +67,14 @@ func (sh *SyncHandler) Sync(w http.ResponseWriter, req *http.Request) {
 	jsonResult, err := json.Marshal(response)
 	if err != nil {
 		sh.logger.Error("marshal error", zap.String("error", err.Error()))
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	_, err = w.Write(jsonResult)
 	if err != nil {
 		sh.logger.Error("write response error", zap.String("error", err.Error()))
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 }

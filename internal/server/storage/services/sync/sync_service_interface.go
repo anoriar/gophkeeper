@@ -2,10 +2,11 @@ package sync
 
 import (
 	"context"
-	"github.com/anoriar/gophkeeper/internal/server/storage/dto/request"
-	"github.com/anoriar/gophkeeper/internal/server/storage/entity"
+
+	"github.com/anoriar/gophkeeper/internal/server/storage/dto/request/sync"
+	syncResponsePkg "github.com/anoriar/gophkeeper/internal/server/storage/dto/response/sync"
 )
 
 type SyncServiceInterface interface {
-	Sync(ctx context.Context, request request.SyncRequest) ([]entity.Entry, error)
+	Sync(ctx context.Context, request sync.SyncRequest) (syncResponsePkg.SyncResponse, error)
 }

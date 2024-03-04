@@ -3,6 +3,7 @@ package login
 import (
 	"encoding/json"
 	"errors"
+
 	sharedErrors "github.com/anoriar/gophkeeper/internal/server/shared/errors"
 
 	"github.com/anoriar/gophkeeper/internal/server/user/dto/requests/login"
