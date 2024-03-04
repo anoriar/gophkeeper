@@ -4,12 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/anoriar/gophkeeper/internal/server/entry/dto"
+	"github.com/anoriar/gophkeeper/internal/server/entry/dto/collection"
+	"github.com/anoriar/gophkeeper/internal/server/entry/dto/response/sync"
+	"github.com/anoriar/gophkeeper/internal/server/entry/entity"
+	"github.com/anoriar/gophkeeper/internal/server/entry/enum"
 	errors2 "github.com/anoriar/gophkeeper/internal/server/shared/errors"
-	"github.com/anoriar/gophkeeper/internal/server/storage/dto"
-	"github.com/anoriar/gophkeeper/internal/server/storage/dto/collection"
-	"github.com/anoriar/gophkeeper/internal/server/storage/dto/response/sync"
-	"github.com/anoriar/gophkeeper/internal/server/storage/entity"
-	"github.com/anoriar/gophkeeper/internal/server/storage/enum"
 )
 
 type SyncResponseFactory struct {

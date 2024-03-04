@@ -3,8 +3,8 @@ package factory
 import (
 	"encoding/json"
 
-	"github.com/anoriar/gophkeeper/internal/server/storage/dto/request/sync"
-	"github.com/anoriar/gophkeeper/internal/server/storage/entity"
+	"github.com/anoriar/gophkeeper/internal/server/entry/dto/request/sync"
+	"github.com/anoriar/gophkeeper/internal/server/entry/entity"
 )
 
 type EntryFactory struct {

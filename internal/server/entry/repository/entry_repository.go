@@ -9,11 +9,11 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jmoiron/sqlx"
 
+	"github.com/anoriar/gophkeeper/internal/server/entry/dto/collection"
+	"github.com/anoriar/gophkeeper/internal/server/entry/entity"
 	"github.com/anoriar/gophkeeper/internal/server/shared/app/db"
 	customCtx "github.com/anoriar/gophkeeper/internal/server/shared/context"
 	errors2 "github.com/anoriar/gophkeeper/internal/server/shared/errors"
-	"github.com/anoriar/gophkeeper/internal/server/storage/dto/collection"
-	"github.com/anoriar/gophkeeper/internal/server/storage/entity"
 )
 
 type EntryRepository struct {

@@ -3,7 +3,7 @@ package router
 import (
 	"github.com/go-chi/chi/v5"
 
-	"github.com/anoriar/gophkeeper/internal/server/storage/handlers/sync"
+	"github.com/anoriar/gophkeeper/internal/server/entry/handlers/sync"
 
 	"github.com/anoriar/gophkeeper/internal/server/shared/app"
 	"github.com/anoriar/gophkeeper/internal/server/shared/middleware/auth"

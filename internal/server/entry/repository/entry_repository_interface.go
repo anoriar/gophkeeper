@@ -3,8 +3,8 @@ package repository
 import (
 	"context"
 
-	"github.com/anoriar/gophkeeper/internal/server/storage/dto/collection"
-	"github.com/anoriar/gophkeeper/internal/server/storage/entity"
+	"github.com/anoriar/gophkeeper/internal/server/entry/dto/collection"
+	"github.com/anoriar/gophkeeper/internal/server/entry/entity"
 )
 
 type EntryRepositoryInterface interface {

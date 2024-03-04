@@ -6,15 +6,15 @@ import (
 
 	"go.uber.org/zap"
 
+	"github.com/anoriar/gophkeeper/internal/server/entry/dto/collection"
+	"github.com/anoriar/gophkeeper/internal/server/entry/dto/request/sync"
+	syncResponsePkg "github.com/anoriar/gophkeeper/internal/server/entry/dto/response/sync"
+	"github.com/anoriar/gophkeeper/internal/server/entry/entity"
+	"github.com/anoriar/gophkeeper/internal/server/entry/factory"
+	syncResponseFactory "github.com/anoriar/gophkeeper/internal/server/entry/factory/response/sync"
+	"github.com/anoriar/gophkeeper/internal/server/entry/repository"
 	"github.com/anoriar/gophkeeper/internal/server/shared/app/db"
 	context2 "github.com/anoriar/gophkeeper/internal/server/shared/context"
-	"github.com/anoriar/gophkeeper/internal/server/storage/dto/collection"
-	"github.com/anoriar/gophkeeper/internal/server/storage/dto/request/sync"
-	syncResponsePkg "github.com/anoriar/gophkeeper/internal/server/storage/dto/response/sync"
-	"github.com/anoriar/gophkeeper/internal/server/storage/entity"
-	"github.com/anoriar/gophkeeper/internal/server/storage/factory"
-	syncResponseFactory "github.com/anoriar/gophkeeper/internal/server/storage/factory/response/sync"
-	"github.com/anoriar/gophkeeper/internal/server/storage/repository"
 )
 
 type SyncService struct {

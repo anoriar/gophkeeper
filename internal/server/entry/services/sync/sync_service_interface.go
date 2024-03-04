@@ -3,8 +3,8 @@ package sync
 import (
 	"context"
 
-	"github.com/anoriar/gophkeeper/internal/server/storage/dto/request/sync"
-	syncResponsePkg "github.com/anoriar/gophkeeper/internal/server/storage/dto/response/sync"
+	"github.com/anoriar/gophkeeper/internal/server/entry/dto/request/sync"
+	syncResponsePkg "github.com/anoriar/gophkeeper/internal/server/entry/dto/response/sync"
 )
 
 type SyncServiceInterface interface {

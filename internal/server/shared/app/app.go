@@ -3,8 +3,8 @@ package app
 import (
 	"go.uber.org/zap"
 
-	entryRepositoryPkg "github.com/anoriar/gophkeeper/internal/server/storage/repository"
-	"github.com/anoriar/gophkeeper/internal/server/storage/services/sync"
+	entryRepositoryPkg "github.com/anoriar/gophkeeper/internal/server/entry/repository"
+	"github.com/anoriar/gophkeeper/internal/server/entry/services/sync"
 
 	dbPkg "github.com/anoriar/gophkeeper/internal/server/shared/app/db"
 	loggerPkg "github.com/anoriar/gophkeeper/internal/server/shared/app/logger"

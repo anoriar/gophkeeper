@@ -7,9 +7,9 @@ import (
 
 	"go.uber.org/zap"
 
+	sync2 "github.com/anoriar/gophkeeper/internal/server/entry/dto/request/sync"
+	"github.com/anoriar/gophkeeper/internal/server/entry/services/sync"
 	customCtx "github.com/anoriar/gophkeeper/internal/server/shared/context"
-	sync2 "github.com/anoriar/gophkeeper/internal/server/storage/dto/request/sync"
-	"github.com/anoriar/gophkeeper/internal/server/storage/services/sync"
 )
 
 type SyncHandler struct {

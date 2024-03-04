@@ -1,6 +1,6 @@
 package collection
 
-import "github.com/anoriar/gophkeeper/internal/server/storage/entity"
+import "github.com/anoriar/gophkeeper/internal/server/entry/entity"
 
 type EntryCollection struct {
 	Entries []entity.Entry

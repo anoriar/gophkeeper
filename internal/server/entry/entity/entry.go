@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/anoriar/gophkeeper/internal/server/storage/enum"
+	"github.com/anoriar/gophkeeper/internal/server/entry/enum"
 )
 
 type Entry struct {

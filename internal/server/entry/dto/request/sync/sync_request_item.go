@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/anoriar/gophkeeper/internal/server/storage/dto"
-	"github.com/anoriar/gophkeeper/internal/server/storage/enum"
+	"github.com/anoriar/gophkeeper/internal/server/entry/dto"
+	"github.com/anoriar/gophkeeper/internal/server/entry/enum"
 )
 
 type SyncRequestItem struct {
