@@ -4,6 +4,9 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/anoriar/gophkeeper/internal/server/entry/errors"
+	"github.com/anoriar/gophkeeper/internal/server/entry/validator"
+
 	"go.uber.org/zap"
 
 	"github.com/anoriar/gophkeeper/internal/server/entry/dto/collection"
@@ -18,24 +21,34 @@ import (
 )
 
 type SyncService struct {
-	entryRepository     repository.EntryRepositoryInterface
-	entryFactory        *factory.EntryFactory
-	syncResponseFactory *syncResponseFactory.SyncResponseFactory
-	db                  *db.Database
-	logger              *zap.Logger
+	entryRepository      repository.EntryRepositoryInterface
+	entryFactory         *factory.EntryFactory
+	syncResponseFactory  *syncResponseFactory.SyncResponseFactory
+	syncRequestValidator *validator.SyncRequestValidator
+	db                   *db.Database
+	logger               *zap.Logger
 }
 
-func NewSyncService(entryRepository repository.EntryRepositoryInterface, db *db.Database, logger *zap.Logger) *SyncService {
+func NewSyncService(
+	entryRepository repository.EntryRepositoryInterface,
+	db *db.Database,
+	logger *zap.Logger,
+) *SyncService {
 	return &SyncService{
-		entryRepository:     entryRepository,
-		db:                  db,
-		logger:              logger,
-		entryFactory:        factory.NewEntryFactory(),
-		syncResponseFactory: syncResponseFactory.NewSyncResponseFactory(),
+		entryRepository:      entryRepository,
+		db:                   db,
+		logger:               logger,
+		entryFactory:         factory.NewEntryFactory(),
+		syncResponseFactory:  syncResponseFactory.NewSyncResponseFactory(),
+		syncRequestValidator: validator.NewSyncRequestValidator(),
 	}
 }
 
 func (s SyncService) Sync(ctx context.Context, request sync.SyncRequest) (syncResponsePkg.SyncResponse, error) {
+	validationErrors := s.syncRequestValidator.ValidateSyncRequest(request)
+	if len(validationErrors) > 0 {
+		return syncResponsePkg.SyncResponse{}, fmt.Errorf("%w: errors: %v", errors.ErrSyncRequestNotValid, validationErrors)
+	}
 
 	userEntries, err := s.entryRepository.GetEntriesByUserID(ctx, request.UserID)
 	if err != nil {

@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	errors2 "github.com/anoriar/gophkeeper/internal/server/entry/errors"
+
 	"github.com/anoriar/gophkeeper/internal/server/entry/dto"
 	"github.com/anoriar/gophkeeper/internal/server/entry/enum"
 )
@@ -38,7 +40,7 @@ func (e *SyncRequestItem) UnmarshalJSON(data []byte) error {
 	case string(enum.Login), string(enum.Card):
 		e.EntryType = (enum.EntryType)(alias.EntryType)
 	default:
-		return fmt.Errorf("invalid EntryType value: %s", alias.EntryType)
+		return fmt.Errorf("%w: invalid EntryType value: %s", errors2.ErrSyncRequestNotValid, alias.EntryType)
 	}
 
 	updatedAt, err := time.Parse(time.RFC3339, alias.UpdatedAt)

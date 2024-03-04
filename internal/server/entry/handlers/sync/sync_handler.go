@@ -2,8 +2,11 @@ package sync
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
+
+	errors2 "github.com/anoriar/gophkeeper/internal/server/entry/errors"
 
 	"go.uber.org/zap"
 
@@ -33,7 +36,10 @@ func (sh *SyncHandler) Sync(w http.ResponseWriter, req *http.Request) {
 	err = json.Unmarshal(requestBody, &syncRequest)
 
 	if err != nil {
+
 		if _, ok := err.(*json.SyntaxError); ok {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+		} else if errors.Is(err, errors2.ErrSyncRequestNotValid) {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 		} else {
 			http.Error(w, "internal server error", http.StatusInternalServerError)
@@ -56,8 +62,12 @@ func (sh *SyncHandler) Sync(w http.ResponseWriter, req *http.Request) {
 
 	response, err := sh.syncService.Sync(req.Context(), syncRequest)
 	if err != nil {
-		http.Error(w, "internal server error", http.StatusInternalServerError)
-		sh.logger.Error("internal server error", zap.String("error", err.Error()))
+		if errors.Is(err, errors2.ErrSyncRequestNotValid) {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+		} else {
+			http.Error(w, "internal server error", http.StatusInternalServerError)
+			sh.logger.Error("internal server error", zap.String("error", err.Error()))
+		}
 		return
 	}
 
