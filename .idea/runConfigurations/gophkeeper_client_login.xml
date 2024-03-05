@@ -1,0 +1,12 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="gophkeeper_client_login" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="gophkeeper" />
+    <working_directory value="$PROJECT_DIR$" />
+    <parameters value="login -u test -p 12345 -m 2345" />
+    <kind value="DIRECTORY" />
+    <package value="github.com/anoriar/gophkeeper" />
+    <directory value="$PROJECT_DIR$/cmd/client" />
+    <filePath value="$PROJECT_DIR$" />
+    <method v="2" />
+  </configuration>
+</component>
