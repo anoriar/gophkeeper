@@ -2,7 +2,10 @@
   <configuration default="false" name="gophkeeper_client_register" type="GoApplicationRunConfiguration" factoryName="Go Application">
     <module name="gophkeeper" />
     <working_directory value="$PROJECT_DIR$" />
-    <parameters value="register" />
+    <parameters value="register -u test -p 1234567 -m 2345" />
+    <envs>
+      <env name="SERVER_ADDRESS" value="http://localhost:8080" />
+    </envs>
     <kind value="DIRECTORY" />
     <package value="github.com/anoriar/gophkeeper/cmd/client" />
     <directory value="$PROJECT_DIR$/cmd/client" />

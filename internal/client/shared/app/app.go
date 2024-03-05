@@ -1,11 +1,14 @@
 package app
 
 import (
+	"github.com/anoriar/gophkeeper/internal/client/shared/app/client"
+	"github.com/anoriar/gophkeeper/internal/client/user/repository/secret"
+	"github.com/anoriar/gophkeeper/internal/client/user/repository/user"
 	"github.com/anoriar/gophkeeper/internal/client/user/services/auth"
 	"go.uber.org/zap"
 
+	loggerPkg "github.com/anoriar/gophkeeper/internal/client/shared/app/logger"
 	"github.com/anoriar/gophkeeper/internal/client/shared/config"
-	loggerPkg "github.com/anoriar/gophkeeper/internal/server/shared/app/logger"
 )
 
 // App missing godoc.
@@ -23,7 +26,11 @@ func NewApp(cnf *config.Config) (*App, error) {
 		return nil, err
 	}
 
-	authService := auth.NewAuthService()
+	gophkeeperHttpClient := client.NewHTTPClient(cnf.ServerAddress, logger)
+
+	userRepository := user.NewUserRepository(gophkeeperHttpClient)
+	secretRepository := secret.NewSecretRepository()
+	authService := auth.NewAuthService(userRepository, secretRepository, logger)
 
 	return &App{
 		Config:      cnf,

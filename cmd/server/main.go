@@ -19,6 +19,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("init app error %v", err.Error())
 	}
+	defer app.Close()
 
 	r := router.NewRouter(app)
 

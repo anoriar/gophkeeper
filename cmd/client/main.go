@@ -23,6 +23,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("init app error %v", err.Error())
 	}
+	defer app.Close()
 
 	command, err := ParseFlags()
 	if err != nil {
