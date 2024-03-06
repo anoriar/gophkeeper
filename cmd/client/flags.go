@@ -129,9 +129,9 @@ func parseAddEntryCommand(flags *pflag.FlagSet) (*entryCommands.AddEntryCommand,
 	var dataStr string
 	var metaStr string
 
-	flags.StringVar(&entryTypeStr, "t", "", "type")
-	flags.StringVar(&dataStr, "d", "", "data")
-	flags.StringVar(&metaStr, "m", "", "meta")
+	flags.StringVarP(&entryTypeStr, "type", "t", "", "type")
+	flags.StringVarP(&dataStr, "data", "d", "", "data")
+	flags.StringVarP(&metaStr, "meta", "m", "", "meta")
 	err := flags.Parse(os.Args[2:])
 	if err != nil {
 		return nil, err
@@ -157,10 +157,10 @@ func parseEditEntryCommand(flags *pflag.FlagSet) (*entryCommands.EditEntryComman
 	var dataStr string
 	var metaStr string
 
-	flags.StringVar(&id, "i", "", "id")
-	flags.StringVar(&entryTypeStr, "t", "", "type")
-	flags.StringVar(&dataStr, "d", "", "data")
-	flags.StringVar(&metaStr, "m", "", "meta")
+	flags.StringVarP(&id, "id", "i", "", "id")
+	flags.StringVarP(&entryTypeStr, "type", "t", "", "type")
+	flags.StringVarP(&dataStr, "data", "d", "", "data")
+	flags.StringVarP(&metaStr, "meta", "m", "", "meta")
 	err := flags.Parse(os.Args[2:])
 	if err != nil {
 		return nil, err
@@ -219,7 +219,7 @@ func parseDataAndEntryType(entryType string, data string, metaStr string) (enum.
 func parseListEntryCommand(flags *pflag.FlagSet) (*entryCommands.ListEntryCommand, error) {
 	var entryTypeStr string
 
-	flags.StringVar(&entryTypeStr, "t", "", "type")
+	flags.StringVarP(&entryTypeStr, "type", "t", "", "type")
 	err := flags.Parse(os.Args[2:])
 	if err != nil {
 		return nil, err
@@ -240,8 +240,8 @@ func parseDeleteEntryCommand(flags *pflag.FlagSet) (*entryCommands.DeleteEntryCo
 	var id string
 	var entryTypeStr string
 
-	flags.StringVar(&id, "i", "", "id")
-	flags.StringVar(&entryTypeStr, "t", "", "type")
+	flags.StringVarP(&id, "id", "i", "", "id")
+	flags.StringVarP(&entryTypeStr, "type", "t", "", "type")
 	err := flags.Parse(os.Args[2:])
 	if err != nil {
 		return nil, err
@@ -264,8 +264,8 @@ func parseDetailEntryCommand(flags *pflag.FlagSet) (*entryCommands.DetailEntryCo
 	var id string
 	var entryTypeStr string
 
-	flags.StringVar(&id, "i", "", "id")
-	flags.StringVar(&entryTypeStr, "t", "", "type")
+	flags.StringVarP(&id, "id", "i", "", "id")
+	flags.StringVarP(&entryTypeStr, "type", "t", "", "type")
 	err := flags.Parse(os.Args[2:])
 	if err != nil {
 		return nil, err

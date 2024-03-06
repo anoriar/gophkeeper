@@ -1,15 +1,15 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="gophkeeper_client_register" type="GoApplicationRunConfiguration" factoryName="Go Application">
+  <configuration default="false" name="client_login" type="GoApplicationRunConfiguration" factoryName="Go Application">
     <module name="gophkeeper" />
     <working_directory value="$PROJECT_DIR$" />
-    <parameters value="register -u test -p 1234567 -m 2345" />
+    <parameters value="login -u test -p 1234567 -m 2345" />
     <envs>
       <env name="SERVER_ADDRESS" value="http://localhost:8080" />
     </envs>
     <kind value="DIRECTORY" />
-    <package value="github.com/anoriar/gophkeeper/cmd/client" />
+    <package value="github.com/anoriar/gophkeeper" />
     <directory value="$PROJECT_DIR$/cmd/client" />
-    <filePath value="$PROJECT_DIR$/cmd/client/main.go" />
+    <filePath value="$PROJECT_DIR$" />
     <method v="2" />
   </configuration>
 </component>

@@ -39,9 +39,8 @@ func main() {
 	cmdExecutor := commandPkg.NewCommandExecutor(app)
 	err = cmdExecutor.ExecuteCommand(command)
 	if err != nil {
-		fmt.Printf("status: failed\n%v", err.Error())
+		fmt.Printf("status: failed\n%v\n", err.Error())
 	} else {
 		fmt.Printf("status: success")
 	}
-
 }
