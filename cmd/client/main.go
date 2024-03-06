@@ -1,10 +1,12 @@
 package main
 
 import (
+	"fmt"
+	"log"
+
 	appPkg "github.com/anoriar/gophkeeper/internal/client/shared/app"
 	"github.com/anoriar/gophkeeper/internal/client/shared/config"
 	commandPkg "github.com/anoriar/gophkeeper/internal/client/shared/services/command"
-	"log"
 )
 
 func main() {
@@ -37,7 +39,9 @@ func main() {
 	cmdExecutor := commandPkg.NewCommandExecutor(app)
 	err = cmdExecutor.ExecuteCommand(command)
 	if err != nil {
-		log.Fatalf("execute command error %v", err.Error())
+		fmt.Printf("status: failed\n%v", err.Error())
+	} else {
+		fmt.Printf("status: success")
 	}
 
 }

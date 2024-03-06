@@ -5,13 +5,15 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"os"
+
+	pflag "github.com/spf13/pflag"
+
 	"github.com/anoriar/gophkeeper/internal/client/entry/dto"
 	entryCommands "github.com/anoriar/gophkeeper/internal/client/entry/dto/command"
 	"github.com/anoriar/gophkeeper/internal/client/entry/enum"
 	"github.com/anoriar/gophkeeper/internal/client/shared/dto/command"
 	userCommands "github.com/anoriar/gophkeeper/internal/client/user/dto/command"
-	pflag "github.com/spf13/pflag"
-	"os"
 )
 
 func ParseFlags() (command.CommandInterface, error) {

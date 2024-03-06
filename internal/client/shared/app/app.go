@@ -1,11 +1,12 @@
 package app
 
 import (
+	"go.uber.org/zap"
+
 	"github.com/anoriar/gophkeeper/internal/client/shared/app/client"
 	"github.com/anoriar/gophkeeper/internal/client/user/repository/secret"
 	"github.com/anoriar/gophkeeper/internal/client/user/repository/user"
 	"github.com/anoriar/gophkeeper/internal/client/user/services/auth"
-	"go.uber.org/zap"
 
 	loggerPkg "github.com/anoriar/gophkeeper/internal/client/shared/app/logger"
 	"github.com/anoriar/gophkeeper/internal/client/shared/config"

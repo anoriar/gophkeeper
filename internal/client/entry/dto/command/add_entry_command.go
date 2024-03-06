@@ -2,6 +2,7 @@ package command
 
 import (
 	"encoding/json"
+
 	"github.com/anoriar/gophkeeper/internal/client/entry/enum"
 	validation "github.com/anoriar/gophkeeper/internal/client/shared/dto"
 )

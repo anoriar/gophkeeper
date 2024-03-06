@@ -2,6 +2,7 @@ package dto
 
 import (
 	"fmt"
+
 	validation "github.com/anoriar/gophkeeper/internal/client/shared/dto"
 )
 

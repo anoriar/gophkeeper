@@ -2,6 +2,7 @@ package command
 
 import (
 	"fmt"
+
 	"github.com/anoriar/gophkeeper/internal/client/shared/app"
 	"github.com/anoriar/gophkeeper/internal/client/shared/dto/command"
 	userCommandPkg "github.com/anoriar/gophkeeper/internal/client/user/dto/command"

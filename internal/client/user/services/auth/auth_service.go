@@ -2,11 +2,13 @@ package auth
 
 import (
 	"fmt"
+
+	"go.uber.org/zap"
+
 	"github.com/anoriar/gophkeeper/internal/client/user/dto/command"
 	"github.com/anoriar/gophkeeper/internal/client/user/dto/repository/request"
 	"github.com/anoriar/gophkeeper/internal/client/user/repository/secret"
 	"github.com/anoriar/gophkeeper/internal/client/user/repository/user"
-	"go.uber.org/zap"
 )
 
 type AuthService struct {

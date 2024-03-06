@@ -2,8 +2,14 @@ package user
 
 import (
 	"encoding/json"
-	"github.com/anoriar/gophkeeper/internal/client/user/dto/repository/request"
+	"fmt"
+	"net/http"
+
 	"github.com/go-resty/resty/v2"
+
+	sharedErr "github.com/anoriar/gophkeeper/internal/client/shared/errors"
+	"github.com/anoriar/gophkeeper/internal/client/user/dto/repository/request"
+	userErr "github.com/anoriar/gophkeeper/internal/client/user/errors"
 )
 
 type UserRepository struct {
@@ -29,9 +35,15 @@ func (u UserRepository) Register(request request.RegisterRequest) (token string,
 		return "", err
 	}
 
-	token = resp.Header().Get("Authorization")
-
-	return token, nil
+	switch resp.StatusCode() {
+	case http.StatusOK:
+		token = resp.Header().Get("Authorization")
+		return token, nil
+	case http.StatusConflict:
+		return "", fmt.Errorf("%w: %v", userErr.ErrUserExists, resp.Body())
+	default:
+		return "", fmt.Errorf("%w: %v", sharedErr.ErrDependencyFailure, resp.Body())
+	}
 }
 
 func (u UserRepository) Login(request request.LoginRequest) (token string, err error) {
@@ -49,7 +61,13 @@ func (u UserRepository) Login(request request.LoginRequest) (token string, err e
 		return "", err
 	}
 
-	token = resp.Header().Get("Authorization")
-
-	return token, nil
+	switch resp.StatusCode() {
+	case http.StatusOK:
+		token = resp.Header().Get("Authorization")
+		return token, nil
+	case http.StatusUnauthorized:
+		return "", fmt.Errorf("%w: %v", userErr.ErrUserUnauthorized, resp.Body())
+	default:
+		return "", fmt.Errorf("%w: %v", sharedErr.ErrDependencyFailure, resp.Body())
+	}
 }

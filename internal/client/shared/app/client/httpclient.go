@@ -1,10 +1,11 @@
 package client
 
 import (
-	"github.com/go-resty/resty/v2"
-	"go.uber.org/zap"
 	"io"
 	"net/http"
+
+	"github.com/go-resty/resty/v2"
+	"go.uber.org/zap"
 )
 
 func NewHTTPClient(baseURL string, logger *zap.Logger) *resty.Client {
