@@ -1,6 +1,7 @@
 package user
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -20,13 +21,14 @@ func NewUserRepository(client *resty.Client) *UserRepository {
 	return &UserRepository{client: client}
 }
 
-func (u UserRepository) Register(request request.RegisterRequest) (token string, err error) {
+func (u UserRepository) Register(ctx context.Context, request request.RegisterRequest) (token string, err error) {
 	body, err := json.Marshal(request)
 	if err != nil {
 		return "", err
 	}
 
 	resp, err := u.client.R().
+		SetContext(ctx).
 		SetHeader("Content-Type", "application/json").
 		SetBody(body).
 		Post("/api/user/register")
@@ -46,13 +48,14 @@ func (u UserRepository) Register(request request.RegisterRequest) (token string,
 	}
 }
 
-func (u UserRepository) Login(request request.LoginRequest) (token string, err error) {
+func (u UserRepository) Login(ctx context.Context, request request.LoginRequest) (token string, err error) {
 	body, err := json.Marshal(request)
 	if err != nil {
 		return "", err
 	}
 
 	resp, err := u.client.R().
+		SetContext(ctx).
 		SetHeader("Content-Type", "application/json").
 		SetBody(body).
 		Post("/api/user/login")

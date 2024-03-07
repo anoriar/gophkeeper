@@ -1,6 +1,8 @@
 package command
 
 import (
+	"fmt"
+
 	"github.com/anoriar/gophkeeper/internal/client/entry/enum"
 	validation "github.com/anoriar/gophkeeper/internal/client/shared/dto"
 )
@@ -10,7 +12,10 @@ type DeleteEntryCommand struct {
 	EntryType enum.EntryType
 }
 
-func (d DeleteEntryCommand) Validate() validation.ValidationErrors {
-	//TODO implement me
-	panic("implement me")
+func (command *DeleteEntryCommand) Validate() validation.ValidationErrors {
+	var validationErrors validation.ValidationErrors
+	if command.Id == "" {
+		validationErrors = append(validationErrors, fmt.Errorf("id required"))
+	}
+	return nil
 }

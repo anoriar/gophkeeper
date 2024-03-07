@@ -1,8 +1,12 @@
 package auth
 
-import "github.com/anoriar/gophkeeper/internal/client/user/dto/command"
+import (
+	"context"
+
+	"github.com/anoriar/gophkeeper/internal/client/user/dto/command"
+)
 
 type AuthServiceInterface interface {
-	Register(command command.RegisterCommand) error
-	Login(command command.LoginCommand) error
+	Register(ctx context.Context, command command.RegisterCommand) error
+	Login(ctx context.Context, command command.LoginCommand) error
 }

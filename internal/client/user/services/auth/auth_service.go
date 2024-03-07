@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"context"
 	"fmt"
 
 	"go.uber.org/zap"
@@ -25,8 +26,8 @@ func NewAuthService(userRepository user.UserRepositoryInterface, secretRepositor
 	}
 }
 
-func (a *AuthService) Register(command command.RegisterCommand) error {
-	token, err := a.userRepository.Register(request.RegisterRequest{
+func (a *AuthService) Register(ctx context.Context, command command.RegisterCommand) error {
+	token, err := a.userRepository.Register(ctx, request.RegisterRequest{
 		Login:    command.UserName,
 		Password: command.Password,
 	})
@@ -49,8 +50,8 @@ func (a *AuthService) Register(command command.RegisterCommand) error {
 	return nil
 }
 
-func (a *AuthService) Login(command command.LoginCommand) error {
-	token, err := a.userRepository.Login(request.LoginRequest{
+func (a *AuthService) Login(ctx context.Context, command command.LoginCommand) error {
+	token, err := a.userRepository.Login(ctx, request.LoginRequest{
 		Login:    command.UserName,
 		Password: command.Password,
 	})

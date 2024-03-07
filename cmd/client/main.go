@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 
@@ -37,7 +38,7 @@ func main() {
 	}
 
 	cmdExecutor := commandPkg.NewCommandExecutor(app)
-	err = cmdExecutor.ExecuteCommand(command)
+	err = cmdExecutor.ExecuteCommand(context.Background(), command)
 	if err != nil {
 		fmt.Printf("status: failed\n%v\n", err.Error())
 	} else {

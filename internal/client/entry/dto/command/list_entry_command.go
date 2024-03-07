@@ -10,6 +10,5 @@ type ListEntryCommand struct {
 }
 
 func (l ListEntryCommand) Validate() validation.ValidationErrors {
-	//TODO implement me
-	panic("implement me")
+	return nil
 }

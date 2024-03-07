@@ -8,12 +8,12 @@ import (
 )
 
 type Entry struct {
-	Id        string
-	EntryType enum.EntryType
-	UpdatedAt time.Time
-	IsDeleted bool
-	Data      []byte
-	Meta      json.RawMessage
+	Id        string          `json:"id"`
+	EntryType enum.EntryType  `json:"type"`
+	UpdatedAt time.Time       `json:"updatedAt"`
+	IsDeleted bool            `json:"isDeleted"`
+	Data      []byte          `json:"data"`
+	Meta      json.RawMessage `json:"meta"`
 }
 
 func NewEntry(id string, entryType enum.EntryType, updatedAt time.Time, isDeleted bool, data []byte, meta json.RawMessage) *Entry {

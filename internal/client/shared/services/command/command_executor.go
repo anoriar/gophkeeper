@@ -1,6 +1,7 @@
 package command
 
 import (
+	"context"
 	"fmt"
 
 	entryCommandPkg "github.com/anoriar/gophkeeper/internal/client/entry/dto/command"
@@ -17,26 +18,31 @@ func NewCommandExecutor(app *app.App) *CommandExecutor {
 	return &CommandExecutor{app: app}
 }
 
-func (sp *CommandExecutor) ExecuteCommand(command command.CommandInterface) error {
+func (sp *CommandExecutor) ExecuteCommand(ctx context.Context, command command.CommandInterface) error {
 	switch command.(type) {
 	case *userCommandPkg.RegisterCommand:
 		if cmd, ok := command.(*userCommandPkg.RegisterCommand); ok {
-			return sp.app.AuthService.Register(*cmd)
+			return sp.app.AuthService.Register(ctx, *cmd)
 		}
 		break
 	case *userCommandPkg.LoginCommand:
 		if cmd, ok := command.(*userCommandPkg.LoginCommand); ok {
-			return sp.app.AuthService.Login(*cmd)
+			return sp.app.AuthService.Login(ctx, *cmd)
 		}
 		break
 	case *entryCommandPkg.AddEntryCommand:
 		if cmd, ok := command.(*entryCommandPkg.AddEntryCommand); ok {
-			return sp.app.EntryServiceProvider.Add(*cmd)
+			return sp.app.EntryServiceProvider.Add(ctx, *cmd)
 		}
 		break
 	case *entryCommandPkg.EditEntryCommand:
 		if cmd, ok := command.(*entryCommandPkg.EditEntryCommand); ok {
-			return sp.app.EntryServiceProvider.Edit(*cmd)
+			return sp.app.EntryServiceProvider.Edit(ctx, *cmd)
+		}
+		break
+	case *entryCommandPkg.DeleteEntryCommand:
+		if cmd, ok := command.(*entryCommandPkg.DeleteEntryCommand); ok {
+			return sp.app.EntryServiceProvider.Delete(ctx, *cmd)
 		}
 		break
 	default:

@@ -6,6 +6,5 @@ type SyncEntryCommand struct {
 }
 
 func (s SyncEntryCommand) Validate() validation.ValidationErrors {
-	//TODO implement me
-	panic("implement me")
+	return nil
 }

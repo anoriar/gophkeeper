@@ -5,19 +5,16 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	"io"
-
-	"github.com/anoriar/gophkeeper/internal/client/user/repository/secret"
 )
 
-type DataEncoder struct {
-	secretRepository secret.SecretRepositoryInterface
+type AesDataEncoder struct {
 }
 
-func NewDataEncoder(secretRepository secret.SecretRepositoryInterface) *DataEncoder {
-	return &DataEncoder{secretRepository: secretRepository}
+func NewAesDataEncoder() *AesDataEncoder {
+	return &AesDataEncoder{}
 }
 
-func (d *DataEncoder) Encode(data []byte, key []byte) ([]byte, error) {
+func (d *AesDataEncoder) Encode(data []byte, key []byte) ([]byte, error) {
 
 	salt := make([]byte, aes.BlockSize)
 	if _, err := io.ReadFull(rand.Reader, salt); err != nil {

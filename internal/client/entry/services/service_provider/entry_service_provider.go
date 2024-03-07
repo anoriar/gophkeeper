@@ -1,6 +1,8 @@
 package service_provider
 
 import (
+	"context"
+
 	"github.com/pkg/errors"
 
 	"github.com/anoriar/gophkeeper/internal/client/entry/dto/command"
@@ -18,60 +20,60 @@ func NewEntryServiceProvider(loginService entry.EntryServiceInterface, cardServi
 	return &EntryServiceProvider{loginService: loginService, cardService: cardService}
 }
 
-func (sp *EntryServiceProvider) Add(cmd command.AddEntryCommand) error {
+func (sp *EntryServiceProvider) Add(ctx context.Context, cmd command.AddEntryCommand) error {
 	service, err := sp.getService(cmd.EntryType)
 	if err != nil {
 		return err
 	}
-	err = service.Add(cmd)
+	err = service.Add(ctx, cmd)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (sp *EntryServiceProvider) Edit(cmd command.EditEntryCommand) error {
+func (sp *EntryServiceProvider) Edit(ctx context.Context, cmd command.EditEntryCommand) error {
 	service, err := sp.getService(cmd.EntryType)
 	if err != nil {
 		return err
 	}
-	err = service.Edit(cmd)
+	err = service.Edit(ctx, cmd)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (sp *EntryServiceProvider) GetById(cmd command.DetailEntryCommand) (entity.Entry, error) {
+func (sp *EntryServiceProvider) GetById(ctx context.Context, cmd command.DetailEntryCommand) (entity.Entry, error) {
 	service, err := sp.getService(cmd.EntryType)
 	if err != nil {
 		return entity.Entry{}, err
 	}
-	entryEntity, err := service.Detail(cmd)
+	entryEntity, err := service.Detail(ctx, cmd)
 	if err != nil {
 		return entity.Entry{}, err
 	}
 	return entryEntity, nil
 }
 
-func (sp *EntryServiceProvider) Delete(cmd command.DeleteEntryCommand) error {
+func (sp *EntryServiceProvider) Delete(ctx context.Context, cmd command.DeleteEntryCommand) error {
 	service, err := sp.getService(cmd.EntryType)
 	if err != nil {
 		return err
 	}
-	err = service.Delete(cmd)
+	err = service.Delete(ctx, cmd)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (sp *EntryServiceProvider) GetList(cmd command.ListEntryCommand) ([]entity.Entry, error) {
+func (sp *EntryServiceProvider) GetList(ctx context.Context, cmd command.ListEntryCommand) ([]entity.Entry, error) {
 	service, err := sp.getService(cmd.EntryType)
 	if err != nil {
 		return nil, err
 	}
-	entries, err := service.List(cmd)
+	entries, err := service.List(ctx, cmd)
 	if err != nil {
 		return nil, err
 	}
