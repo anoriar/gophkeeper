@@ -6,6 +6,6 @@ import (
 )
 
 type EntryFactoryInterface interface {
-	CreateFromAddCmd(command command.AddEntryCommand) entity.Entry
-	CreateFromEditCmd(command command.EditEntryCommand) entity.Entry
+	CreateFromAddCmd(command command.AddEntryCommand) (entity.Entry, error)
+	CreateFromEditCmd(command command.EditEntryCommand) (entity.Entry, error)
 }

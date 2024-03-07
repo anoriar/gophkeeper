@@ -8,6 +8,6 @@ type EntryRepositoryInterface interface {
 	Add(entry entity.Entry) error
 	Edit(entry entity.Entry) error
 	Delete(id string) error
-	GetById(id string) (entity.Entry, error)
+	FindById(id string) (*entity.Entry, error)
 	GetList() ([]entity.Entry, error)
 }

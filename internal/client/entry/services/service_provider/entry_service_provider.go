@@ -1,11 +1,12 @@
 package service_provider
 
 import (
+	"github.com/pkg/errors"
+
 	"github.com/anoriar/gophkeeper/internal/client/entry/dto/command"
 	"github.com/anoriar/gophkeeper/internal/client/entry/entity"
 	"github.com/anoriar/gophkeeper/internal/client/entry/enum"
 	"github.com/anoriar/gophkeeper/internal/client/entry/services/entry"
-	"github.com/pkg/errors"
 )
 
 type EntryServiceProvider struct {
