@@ -1,6 +1,7 @@
 package secret
 
 import (
+	"io"
 	"os"
 )
 
@@ -38,17 +39,17 @@ func (s SecretRepository) SaveAuthToken(token string) error {
 }
 
 func (s SecretRepository) GetAuthToken() (string, error) {
-	file, err := os.OpenFile(secretDirname+authTokenFilename, os.O_WRONLY|os.O_CREATE, 0666)
+	file, err := os.OpenFile(secretDirname+authTokenFilename, os.O_RDONLY|os.O_CREATE, 0666)
 	if err != nil {
 		return "", err
 	}
 	defer file.Close()
 
-	var content []byte
-	_, err = file.Read(content)
+	content, err := io.ReadAll(file)
 	if err != nil {
 		return "", err
 	}
+
 	return string(content), nil
 }
 
@@ -72,14 +73,13 @@ func (s SecretRepository) SaveMasterPassword(pass string) error {
 }
 
 func (s SecretRepository) GetMasterPassword() (string, error) {
-	file, err := os.OpenFile(secretDirname+masterPasswordFilename, os.O_WRONLY|os.O_CREATE, 0666)
+	file, err := os.OpenFile(secretDirname+masterPasswordFilename, os.O_RDONLY|os.O_CREATE, 0666)
 	if err != nil {
 		return "", err
 	}
 	defer file.Close()
 
-	var content []byte
-	_, err = file.Read(content)
+	content, err := io.ReadAll(file)
 	if err != nil {
 		return "", err
 	}

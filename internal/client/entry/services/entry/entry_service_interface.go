@@ -3,14 +3,20 @@ package entry
 import (
 	"context"
 
+	"github.com/anoriar/gophkeeper/internal/client/entry/dto/command_response"
+
 	"github.com/anoriar/gophkeeper/internal/client/entry/dto/command"
-	"github.com/anoriar/gophkeeper/internal/client/entry/entity"
 )
 
 type EntryServiceInterface interface {
+	// Add Добавление записи
 	Add(ctx context.Context, command command.AddEntryCommand) error
+	// Edit Редактирование записи
 	Edit(ctx context.Context, command command.EditEntryCommand) error
-	Detail(ctx context.Context, command command.DetailEntryCommand) (entity.Entry, error)
+	// Detail Полная информация по записи (с расшифрованной информацией)
+	Detail(ctx context.Context, command command.DetailEntryCommand) (command_response.DetailEntryCommandResponse, error)
+	// Delete Удаление записи, isDeleted=true
 	Delete(ctx context.Context, command command.DeleteEntryCommand) error
-	List(ctx context.Context, command command.ListEntryCommand) ([]entity.Entry, error)
+	// List Список записей (без даты)
+	List(ctx context.Context, command command.ListEntryCommand) ([]command_response.ListEntryCommandResponse, error)
 }

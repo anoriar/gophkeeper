@@ -34,10 +34,10 @@ func (t CustomRoundTripper) RoundTrip(request *http.Request) (*http.Response, er
 	}
 	respBody, err := io.ReadAll(response.Body)
 	if err != nil {
-		t.logger.Error("response error", zap.String("error", err.Error()))
+		t.logger.Error("command_response error", zap.String("error", err.Error()))
 		return nil, err
 	}
-	t.logger.Info("response",
+	t.logger.Info("command_response",
 		zap.String("uri", request.URL.String()),
 		zap.String("method", request.Method),
 		zap.String("status", response.Status),

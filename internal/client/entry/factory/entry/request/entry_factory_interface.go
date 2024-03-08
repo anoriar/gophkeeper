@@ -1,4 +1,4 @@
-package entry
+package request
 
 import (
 	"github.com/anoriar/gophkeeper/internal/client/entry/dto/command"

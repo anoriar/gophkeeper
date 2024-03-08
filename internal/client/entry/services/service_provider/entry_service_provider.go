@@ -3,10 +3,11 @@ package service_provider
 import (
 	"context"
 
+	"github.com/anoriar/gophkeeper/internal/client/entry/dto/command_response"
+
 	"github.com/pkg/errors"
 
 	"github.com/anoriar/gophkeeper/internal/client/entry/dto/command"
-	"github.com/anoriar/gophkeeper/internal/client/entry/entity"
 	"github.com/anoriar/gophkeeper/internal/client/entry/enum"
 	"github.com/anoriar/gophkeeper/internal/client/entry/services/entry"
 )
@@ -44,14 +45,14 @@ func (sp *EntryServiceProvider) Edit(ctx context.Context, cmd command.EditEntryC
 	return nil
 }
 
-func (sp *EntryServiceProvider) GetById(ctx context.Context, cmd command.DetailEntryCommand) (entity.Entry, error) {
+func (sp *EntryServiceProvider) Detail(ctx context.Context, cmd command.DetailEntryCommand) (command_response.DetailEntryCommandResponse, error) {
 	service, err := sp.getService(cmd.EntryType)
 	if err != nil {
-		return entity.Entry{}, err
+		return command_response.DetailEntryCommandResponse{}, err
 	}
 	entryEntity, err := service.Detail(ctx, cmd)
 	if err != nil {
-		return entity.Entry{}, err
+		return command_response.DetailEntryCommandResponse{}, err
 	}
 	return entryEntity, nil
 }
@@ -68,7 +69,7 @@ func (sp *EntryServiceProvider) Delete(ctx context.Context, cmd command.DeleteEn
 	return nil
 }
 
-func (sp *EntryServiceProvider) GetList(ctx context.Context, cmd command.ListEntryCommand) ([]entity.Entry, error) {
+func (sp *EntryServiceProvider) GetList(ctx context.Context, cmd command.ListEntryCommand) ([]command_response.ListEntryCommandResponse, error) {
 	service, err := sp.getService(cmd.EntryType)
 	if err != nil {
 		return nil, err

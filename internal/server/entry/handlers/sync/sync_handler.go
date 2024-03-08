@@ -83,7 +83,7 @@ func (sh *SyncHandler) Sync(w http.ResponseWriter, req *http.Request) {
 
 	_, err = w.Write(jsonResult)
 	if err != nil {
-		sh.logger.Error("write response error", zap.String("error", err.Error()))
+		sh.logger.Error("write command_response error", zap.String("error", err.Error()))
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

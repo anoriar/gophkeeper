@@ -83,8 +83,8 @@ func (s SyncService) Sync(ctx context.Context, request sync.SyncRequest) (syncRe
 	}
 	response, err := s.syncResponseFactory.CreateSyncResponse(actualEntries)
 	if err != nil {
-		s.logger.Error("create response dto error", zap.String("error", err.Error()))
-		return syncResponsePkg.SyncResponse{}, fmt.Errorf("create response dto error: %v", err)
+		s.logger.Error("create command_response dto error", zap.String("error", err.Error()))
+		return syncResponsePkg.SyncResponse{}, fmt.Errorf("create command_response dto error: %v", err)
 	}
 	return response, nil
 }
