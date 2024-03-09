@@ -1,7 +1,6 @@
 package client
 
 import (
-	"io"
 	"net/http"
 
 	"github.com/go-resty/resty/v2"
@@ -32,16 +31,11 @@ func (t CustomRoundTripper) RoundTrip(request *http.Request) (*http.Response, er
 		t.logger.Error("request error", zap.String("error", err.Error()))
 		return nil, err
 	}
-	respBody, err := io.ReadAll(response.Body)
-	if err != nil {
-		t.logger.Error("command_response error", zap.String("error", err.Error()))
-		return nil, err
-	}
+
 	t.logger.Info("command_response",
 		zap.String("uri", request.URL.String()),
 		zap.String("method", request.Method),
 		zap.String("status", response.Status),
-		zap.String("status", string(respBody)),
 	)
 
 	return response, nil

@@ -18,5 +18,6 @@ type EntryServiceInterface interface {
 	// Delete Удаление записи, isDeleted=true
 	Delete(ctx context.Context, command command.DeleteEntryCommand) error
 	// List Список записей (без даты)
-	List(ctx context.Context, command command.ListEntryCommand) ([]command_response.ListEntryCommandResponse, error)
+	List(ctx context.Context) ([]command_response.ListEntryCommandResponse, error)
+	Sync(ctx context.Context) error
 }

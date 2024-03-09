@@ -11,4 +11,5 @@ type EntryRepositoryInterface interface {
 	Edit(ctx context.Context, entry entity.Entry) error
 	GetById(ctx context.Context, id string) (entity.Entry, error)
 	GetList(ctx context.Context) ([]entity.Entry, error)
+	Rewrite(ctx context.Context, entries []entity.Entry) error
 }

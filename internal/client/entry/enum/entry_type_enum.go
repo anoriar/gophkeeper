@@ -9,9 +9,9 @@ const (
 
 var AllEntryTypes = []EntryType{Login, Card}
 
-func IsEntryType(value EntryType) bool {
+func IsEntryType(value string) bool {
 	for _, v := range AllEntryTypes {
-		if v == value {
+		if string(v) == value {
 			return true
 		}
 	}

@@ -54,16 +54,13 @@ func (e *EntryRepository) AddEntries(ctx context.Context, entries []entity.Entry
 		return fmt.Errorf("%w: %v", errors2.ErrInternalError, err)
 	}
 
-	stmt, err := txx.PreparexContext(ctx, "INSERT INTO entries (id, type, user_id, updated_at, data, meta) VALUES ($1, $2, $3, $4, $5, $6)")
+	stmt, err := txx.PreparexContext(ctx, "INSERT INTO entries (id, type, user_id, updated_at, data, meta, original_id) VALUES ($1, $2, $3, $4, $5, $6, $7)")
 	if err != nil {
 		return fmt.Errorf("%w: %v", errors2.ErrInternalError, err)
 	}
 
 	for _, entry := range entries {
-		_, err := stmt.ExecContext(ctx, entry.Id, entry.EntryType, entry.UserId, entry.UpdatedAt, entry.Data, entry.Meta)
-		if err != nil {
-			return err
-		}
+		_, err := stmt.ExecContext(ctx, entry.Id, entry.EntryType, entry.UserId, entry.UpdatedAt, entry.Data, entry.Meta, entry.OriginalId)
 		if err != nil {
 			var pgErr *pgconn.PgError
 			if errors.As(err, &pgErr) && pgerrcode.UniqueViolation == pgErr.Code {
@@ -82,13 +79,13 @@ func (e *EntryRepository) UpdateEntries(ctx context.Context, entries []entity.En
 		return fmt.Errorf("%w: %v", errors2.ErrInternalError, err)
 	}
 
-	stmt, err := txx.PreparexContext(ctx, "UPDATE entries SET type = $1, user_id = $2, updated_at = $3, data = $4, meta = $5 WHERE id = $6")
+	stmt, err := txx.PreparexContext(ctx, "UPDATE entries SET type = $1, user_id = $2, updated_at = $3, data = $4, meta = $5, original_id = $6 WHERE id = $7")
 	if err != nil {
 		return fmt.Errorf("%w: %v", errors2.ErrInternalError, err)
 	}
 
 	for _, entry := range entries {
-		_, err := stmt.ExecContext(ctx, entry.EntryType, entry.UserId, entry.UpdatedAt, entry.Data, entry.Meta, entry.Id)
+		_, err := stmt.ExecContext(ctx, entry.EntryType, entry.UserId, entry.UpdatedAt, entry.Data, entry.Meta, entry.OriginalId, entry.Id)
 		if err != nil {
 			return err
 		}

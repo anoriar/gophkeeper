@@ -1,8 +1,9 @@
-package request
+package factory
 
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/anoriar/gophkeeper/internal/client/entry/dto/repository/entry_ext"
 	"time"
 
 	"github.com/google/uuid"
@@ -67,4 +68,19 @@ func (l *EntryFactory) createData(data interface{}) ([]byte, error) {
 	default:
 		return nil, fmt.Errorf("%w: %v", errors.ErrInternalError, "data type is not implemented")
 	}
+}
+
+func (l *EntryFactory) CreateFromSyncResponse(syncResponseItems []entry_ext.SyncResponseItem) []entity.Entry {
+	entries := make([]entity.Entry, 0, len(syncResponseItems))
+	for _, responseItem := range syncResponseItems {
+		entries = append(entries, entity.Entry{
+			Id:        responseItem.OriginalId,
+			EntryType: responseItem.EntryType,
+			UpdatedAt: responseItem.UpdatedAt,
+			IsDeleted: false,
+			Data:      responseItem.Data,
+			Meta:      responseItem.Meta,
+		})
+	}
+	return entries
 }

@@ -3,46 +3,41 @@ package sync
 import (
 	"encoding/json"
 	"fmt"
+	errors2 "github.com/anoriar/gophkeeper/internal/server/entry/errors"
 	"time"
 
-	errors2 "github.com/anoriar/gophkeeper/internal/server/entry/errors"
-
-	"github.com/anoriar/gophkeeper/internal/server/entry/dto"
 	"github.com/anoriar/gophkeeper/internal/server/entry/enum"
 )
 
 type SyncRequestItem struct {
-	Id        string
-	EntryType enum.EntryType
-	UpdatedAt time.Time
-	Data      interface{}
-	Meta      json.RawMessage
-	IsDeleted bool
+	OriginalId string
+	EntryType  enum.EntryType
+	UpdatedAt  time.Time
+	Data       []byte
+	Meta       json.RawMessage
+	IsDeleted  bool
 }
 
 func (e *SyncRequestItem) UnmarshalJSON(data []byte) error {
 	var alias struct {
-		Id        string          `json:"id"`
-		EntryType string          `json:"type"`
-		UpdatedAt string          `json:"updatedAt"`
-		Data      json.RawMessage `json:"data"`
-		Meta      json.RawMessage `json:"meta"`
-		IsDeleted bool            `json:"isDeleted"`
+		OriginalId string          `json:"originalId"`
+		EntryType  string          `json:"type"`
+		UpdatedAt  string          `json:"updatedAt"`
+		Data       string          `json:"data"`
+		Meta       json.RawMessage `json:"meta"`
+		IsDeleted  bool            `json:"isDeleted"`
 	}
 	if err := json.Unmarshal(data, &alias); err != nil {
 		return err
 	}
 
-	e.Id = alias.Id
+	e.OriginalId = alias.OriginalId
 	e.IsDeleted = alias.IsDeleted
 
-	switch alias.EntryType {
-	case string(enum.Login), string(enum.Card):
-		e.EntryType = (enum.EntryType)(alias.EntryType)
-	default:
+	if !enum.IsEntryType(alias.EntryType) {
 		return fmt.Errorf("%w: invalid EntryType value: %s", errors2.ErrSyncRequestNotValid, alias.EntryType)
 	}
-
+	e.EntryType = (enum.EntryType)(alias.EntryType)
 	updatedAt, err := time.Parse(time.RFC3339, alias.UpdatedAt)
 	if err != nil {
 		return err
@@ -50,18 +45,7 @@ func (e *SyncRequestItem) UnmarshalJSON(data []byte) error {
 	e.UpdatedAt = updatedAt
 	e.Meta = alias.Meta
 
-	switch e.EntryType {
-	case enum.Login:
-		e.Data = &dto.LoginData{}
-	case enum.Card:
-		e.Data = &dto.CardData{}
-	}
-
-	if e.Data != nil {
-		if err := json.Unmarshal(alias.Data, e.Data); err != nil {
-			return fmt.Errorf("value of type (%T): unmarshal: %w", e.Data, err)
-		}
-	}
+	e.Data = []byte(alias.Data)
 
 	return nil
 }

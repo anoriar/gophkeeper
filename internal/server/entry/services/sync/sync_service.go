@@ -3,10 +3,8 @@ package sync
 import (
 	"context"
 	"fmt"
-
-	"github.com/anoriar/gophkeeper/internal/server/entry/errors"
+	serverErrors "github.com/anoriar/gophkeeper/internal/server/entry/errors"
 	"github.com/anoriar/gophkeeper/internal/server/entry/validator"
-
 	"go.uber.org/zap"
 
 	"github.com/anoriar/gophkeeper/internal/server/entry/dto/collection"
@@ -47,25 +45,25 @@ func NewSyncService(
 func (s SyncService) Sync(ctx context.Context, request sync.SyncRequest) (syncResponsePkg.SyncResponse, error) {
 	validationErrors := s.syncRequestValidator.ValidateSyncRequest(request)
 	if len(validationErrors) > 0 {
-		return syncResponsePkg.SyncResponse{}, fmt.Errorf("%w: errors: %v", errors.ErrSyncRequestNotValid, validationErrors)
+		return syncResponsePkg.SyncResponse{}, fmt.Errorf("%w: serverErrors: %v", serverErrors.ErrSyncRequestNotValid, validationErrors)
 	}
 
 	userEntries, err := s.entryRepository.GetEntriesByUserID(ctx, request.UserID)
 	if err != nil {
 		s.logger.Error("get user entries error", zap.String("error", err.Error()))
-		return syncResponsePkg.SyncResponse{}, fmt.Errorf("get user entries error: %v", err)
+		return syncResponsePkg.SyncResponse{}, fmt.Errorf("get user entries error: %w", err)
 	}
 
 	newEntries, err := s.getNewItems(request, userEntries)
 	if err != nil {
 		s.logger.Error("get new entries error", zap.String("error", err.Error()))
-		return syncResponsePkg.SyncResponse{}, fmt.Errorf("get new entries error: %v", err)
+		return syncResponsePkg.SyncResponse{}, fmt.Errorf("get new entries error: %w", err)
 	}
 
 	updatedEntries, err := s.getUpdatedItems(request, userEntries)
 	if err != nil {
 		s.logger.Error("get updated entries error", zap.String("error", err.Error()))
-		return syncResponsePkg.SyncResponse{}, fmt.Errorf("get updated entries error: %v", err)
+		return syncResponsePkg.SyncResponse{}, fmt.Errorf("get updated entries error: %w", err)
 	}
 
 	deletedIds := s.getDeletedIds(request, userEntries)
@@ -73,18 +71,18 @@ func (s SyncService) Sync(ctx context.Context, request sync.SyncRequest) (syncRe
 	err = s.executeSync(ctx, newEntries, updatedEntries, deletedIds)
 	if err != nil {
 		s.logger.Error("execute sync error", zap.String("error", err.Error()))
-		return syncResponsePkg.SyncResponse{}, fmt.Errorf("execute sync error: %v", err)
+		return syncResponsePkg.SyncResponse{}, fmt.Errorf("execute sync error: %w", err)
 	}
 
 	actualEntries, err := s.entryRepository.GetEntriesByUserID(ctx, request.UserID)
 	if err != nil {
 		s.logger.Error("get actual entries error", zap.String("error", err.Error()))
-		return syncResponsePkg.SyncResponse{}, fmt.Errorf("get actual entries error: %v", err)
+		return syncResponsePkg.SyncResponse{}, fmt.Errorf("get actual entries error: %w", err)
 	}
 	response, err := s.syncResponseFactory.CreateSyncResponse(actualEntries)
 	if err != nil {
 		s.logger.Error("create command_response dto error", zap.String("error", err.Error()))
-		return syncResponsePkg.SyncResponse{}, fmt.Errorf("create command_response dto error: %v", err)
+		return syncResponsePkg.SyncResponse{}, fmt.Errorf("create command_response dto error: %w", err)
 	}
 	return response, nil
 }
@@ -99,7 +97,7 @@ func (s SyncService) executeSync(ctx context.Context, newEntries []entity.Entry,
 	defer txx.Rollback()
 	err = s.entryRepository.AddEntries(ctx, newEntries)
 	if err != nil {
-		return fmt.Errorf("add entries error: %v", err)
+		return fmt.Errorf("add entries error: %w", err)
 	}
 
 	err = s.entryRepository.UpdateEntries(ctx, updatedEntries)
@@ -126,8 +124,8 @@ func (s SyncService) executeSync(ctx context.Context, newEntries []entity.Entry,
 func (s SyncService) getNewItems(request sync.SyncRequest, userEntries collection.EntryCollection) ([]entity.Entry, error) {
 	newEntries := make([]entity.Entry, 0, len(request.Items))
 	for _, requestItem := range request.Items {
-		if !userEntries.Contains(requestItem.Id) && requestItem.IsDeleted != true {
-			item, err := s.entryFactory.CreateEntryFromRequestItem(requestItem, request.UserID)
+		if requestItem.IsDeleted != true && !userEntries.Contains(requestItem.OriginalId) {
+			item, err := s.entryFactory.CreateNewEntryFromRequestItem(requestItem, request.UserID)
 			if err != nil {
 				return nil, err
 			}
@@ -140,10 +138,13 @@ func (s SyncService) getNewItems(request sync.SyncRequest, userEntries collectio
 func (s SyncService) getUpdatedItems(request sync.SyncRequest, userEntries collection.EntryCollection) ([]entity.Entry, error) {
 	updatedEntries := make([]entity.Entry, 0, len(request.Items))
 	for _, requestItem := range request.Items {
-		userEntry := userEntries.FindById(requestItem.Id)
-		if userEntry != nil && requestItem.IsDeleted != true {
+		if requestItem.OriginalId == "" || requestItem.IsDeleted == true {
+			continue
+		}
+		userEntry := userEntries.FindByOriginalId(requestItem.OriginalId)
+		if userEntry != nil {
 			if requestItem.UpdatedAt.After(userEntry.UpdatedAt) {
-				item, err := s.entryFactory.CreateEntryFromRequestItem(requestItem, request.UserID)
+				item, err := s.entryFactory.CreateEntryFromRequestItem(userEntry.Id, requestItem, request.UserID)
 				if err != nil {
 					return nil, err
 				}
@@ -158,8 +159,9 @@ func (s SyncService) getUpdatedItems(request sync.SyncRequest, userEntries colle
 func (s SyncService) getDeletedIds(request sync.SyncRequest, userEntries collection.EntryCollection) []string {
 	deletedIds := make([]string, 0, len(request.Items))
 	for _, requestItem := range request.Items {
-		if requestItem.IsDeleted == true && userEntries.Contains(requestItem.Id) {
-			deletedIds = append(deletedIds, requestItem.Id)
+		deletedEntry := userEntries.FindByOriginalId(requestItem.OriginalId)
+		if requestItem.IsDeleted == true && deletedEntry != nil {
+			deletedIds = append(deletedIds, deletedEntry.Id)
 		}
 	}
 	return deletedIds

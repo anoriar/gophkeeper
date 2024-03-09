@@ -20,17 +20,14 @@ Content-Type: application/json
 ### sync entries
 POST {{baseUrl}}/api/entries/sync
 Content-Type: application/json
-Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDAzMTMwNzgsIlVzZXJJRCI6ImYzMzc1YWI3LWEwMDAtNDk5Ny1iNmNhLTA3YmQ1YWMwMWZhYyJ9.5Nyfucn8uOLm5EXR2CViQdcq7ZGaaN3ONMFiDRMj_vc
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTAwMjk3NzksIlVzZXJJRCI6ImNiYjUzM2MxLTQ1NTEtNDFiNi1iMmU4LThhNjIwZmM1N2EyNyJ9.AP034HNZZoMIeuhKL9dZ39KnDRDmRukUfL6C0A_U3fw
 
 {
   "items": [
     {
-      "id": "0664b999-fdfc-4f2f-9c35-dace58da6400",
+      "originalId": "0bc6c22e-d8b5-4057-9d28-eb5b7a233364",
       "type": "login",
-      "data": {
-        "login": "user",
-        "password": "password"
-      },
+      "data": "MX1mUs+puMP3FNlWITgzf5vS2JmcsVu/AivvxURLiQaPQJIxeVbF5/zGUBNVWuW5kzWhHKAi4E+gtoQ8Y9k=",
       "isDeleted": false,
       "updatedAt": "2020-12-10T15:15:45+00:00",
       "meta": {
@@ -39,14 +36,9 @@ Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDAzMTMwNzgsIlVz
       }
     },
     {
-      "id": "3da6111c-6316-4993-aeff-74a2c3f345f9",
+      "originalId": "3da6111c-6316-4993-aeff-74a2c3f345f9",
       "type": "card",
-      "data": {
-        "number": "1245678",
-        "expireDate": "03/28",
-        "holder": "Test",
-        "cvv": "123"
-      },
+      "data": "2DAKVANzdYtKSMvMj11o/wEI8NnCZI3UkPu6z2UZtnOkdKSzdGddkkvu7EKST2OQ0Hcus7nfaosO/agavL8=",
       "isDeleted": false,
       "updatedAt": "2020-12-10T15:15:45+00:00",
       "meta": {

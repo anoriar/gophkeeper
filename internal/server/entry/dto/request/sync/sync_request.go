@@ -7,7 +7,7 @@ type SyncRequest struct {
 
 func (c *SyncRequest) Contains(id string) bool {
 	for _, entry := range c.Items {
-		if entry.Id == id {
+		if entry.OriginalId == id {
 			return true
 		}
 	}
@@ -16,7 +16,7 @@ func (c *SyncRequest) Contains(id string) bool {
 
 func (c *SyncRequest) FindById(id string) *SyncRequestItem {
 	for _, entry := range c.Items {
-		if entry.Id == id {
+		if entry.OriginalId == id {
 			return &entry
 		}
 	}

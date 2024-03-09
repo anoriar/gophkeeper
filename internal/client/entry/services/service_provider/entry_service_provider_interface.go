@@ -14,4 +14,5 @@ type EntryServiceProviderInterface interface {
 	Delete(ctx context.Context, cmd command.DeleteEntryCommand) error
 	Detail(ctx context.Context, cmd command.DetailEntryCommand) (command_response.DetailEntryCommandResponse, error)
 	GetList(ctx context.Context, cmd command.ListEntryCommand) ([]command_response.ListEntryCommandResponse, error)
+	Sync(ctx context.Context, cmd command.SyncEntryCommand) error
 }

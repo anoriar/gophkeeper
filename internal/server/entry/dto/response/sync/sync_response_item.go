@@ -8,13 +8,13 @@ import (
 )
 
 type SyncResponseItem struct {
-	Id        string
-	EntryType enum.EntryType
-	UpdatedAt time.Time
-	Data      interface{}
-	Meta      json.RawMessage
+	OriginalId string          `json:"originalId"`
+	EntryType  enum.EntryType  `json:"type"`
+	UpdatedAt  time.Time       `json:"updatedAt"`
+	Data       []byte          `json:"data"`
+	Meta       json.RawMessage `json:"meta"`
 }
 
-func NewSyncResponseItem(id string, entryType enum.EntryType, updatedAt time.Time, data interface{}, meta json.RawMessage) *SyncResponseItem {
-	return &SyncResponseItem{Id: id, EntryType: entryType, UpdatedAt: updatedAt, Data: data, Meta: meta}
+func NewSyncResponseItem(originalId string, entryType enum.EntryType, updatedAt time.Time, data []byte, meta json.RawMessage) *SyncResponseItem {
+	return &SyncResponseItem{OriginalId: originalId, EntryType: entryType, UpdatedAt: updatedAt, Data: data, Meta: meta}
 }

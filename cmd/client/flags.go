@@ -285,7 +285,21 @@ func parseDetailEntryCommand(flags *pflag.FlagSet) (*entryCommands.DetailEntryCo
 }
 
 func parseSyncEntryCommand(flags *pflag.FlagSet) (*entryCommands.SyncEntryCommand, error) {
+	var entryTypeStr string
+
+	flags.StringVarP(&entryTypeStr, "type", "t", "", "type")
+	err := flags.Parse(os.Args[2:])
+	if err != nil {
+		return nil, err
+	}
+
+	entryType, err := parseEntryType(entryTypeStr)
+	if err != nil {
+		return nil, err
+	}
+
 	entryCommand := &entryCommands.SyncEntryCommand{}
+	entryCommand.EntryType = entryType
 
 	return entryCommand, nil
 }

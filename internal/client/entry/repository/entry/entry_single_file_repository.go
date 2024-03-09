@@ -106,6 +106,23 @@ func (e *EntrySingleFileRepository) findOneByCondition(condition func(entry enti
 	}
 }
 
+func (e *EntrySingleFileRepository) Rewrite(ctx context.Context, entries []entity.Entry) error {
+	fileWriter, err := writer.NewEntryFileEmptyWriter(e.fileName)
+	if err != nil {
+		return err
+	}
+	defer fileWriter.Close()
+
+	for _, entry := range entries {
+		err = fileWriter.WriteEntry(entry)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (e *EntrySingleFileRepository) rewriteFile(callback func(fileEntries map[string]*entity.Entry) error) error {
 	fileReader, err := reader.NewEntryFileReader(e.fileName)
 	if err != nil {

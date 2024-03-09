@@ -74,11 +74,23 @@ func (sp *EntryServiceProvider) GetList(ctx context.Context, cmd command.ListEnt
 	if err != nil {
 		return nil, err
 	}
-	entries, err := service.List(ctx, cmd)
+	entries, err := service.List(ctx)
 	if err != nil {
 		return nil, err
 	}
 	return entries, nil
+}
+
+func (sp *EntryServiceProvider) Sync(ctx context.Context, cmd command.SyncEntryCommand) error {
+	service, err := sp.getService(cmd.EntryType)
+	if err != nil {
+		return err
+	}
+	err = service.Sync(ctx)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (sp *EntryServiceProvider) getService(entryType enum.EntryType) (entry.EntryServiceInterface, error) {

@@ -74,6 +74,14 @@ func (sp *CommandExecutor) ExecuteCommand(ctx context.Context, command command.C
 			fmt.Printf("%s\n", response)
 		}
 		return nil
+	case *entryCommandPkg.SyncEntryCommand:
+		if cmd, ok := command.(*entryCommandPkg.SyncEntryCommand); ok {
+			err := sp.app.EntryServiceProvider.Sync(ctx, *cmd)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
 	default:
 		return fmt.Errorf("command not exists")
 	}

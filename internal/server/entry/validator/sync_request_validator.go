@@ -3,9 +3,7 @@ package validator
 import (
 	"fmt"
 
-	"github.com/anoriar/gophkeeper/internal/server/entry/dto"
 	"github.com/anoriar/gophkeeper/internal/server/entry/dto/request/sync"
-	"github.com/anoriar/gophkeeper/internal/server/entry/enum"
 	validation "github.com/anoriar/gophkeeper/internal/server/shared/dto"
 )
 
@@ -20,30 +18,12 @@ func (v *SyncRequestValidator) ValidateSyncRequest(request sync.SyncRequest) val
 
 	var validationErrors validation.ValidationErrors
 	for itemIndex, reqItem := range request.Items {
-		if reqItem.Id == "" {
-			validationErrors = append(validationErrors, fmt.Errorf("item %d: id required", itemIndex))
+		if reqItem.OriginalId == "" {
+			validationErrors = append(validationErrors, fmt.Errorf("item %d: originalId required", itemIndex))
 		}
-		if !enum.IsEntryType(reqItem.EntryType) {
-			validationErrors = append(validationErrors, fmt.Errorf("item %d: not valid entry type", itemIndex))
+		if len(reqItem.Data) == 0 {
+			validationErrors = append(validationErrors, fmt.Errorf("item %d: data required", itemIndex))
 		}
-
-		switch reqItem.EntryType {
-		case enum.Login:
-			data, ok := reqItem.Data.(*dto.LoginData)
-			if !ok {
-				validationErrors = append(validationErrors, fmt.Errorf("item %d: data not compatible with any format", itemIndex))
-			}
-			validationErrors = append(validationErrors, data.Validate()...)
-		case enum.Card:
-			data, ok := reqItem.Data.(*dto.CardData)
-			if !ok {
-				validationErrors = append(validationErrors, fmt.Errorf("item %d: data not compatible with any format", itemIndex))
-			}
-			validationErrors = append(validationErrors, data.Validate()...)
-		default:
-			validationErrors = append(validationErrors, fmt.Errorf("item %d: data not compatible with any format", itemIndex))
-		}
-
 	}
 	return validationErrors
 }

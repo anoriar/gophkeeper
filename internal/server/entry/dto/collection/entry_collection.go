@@ -14,16 +14,16 @@ func NewEntryCollection(entries []entity.Entry) *EntryCollection {
 
 func (c *EntryCollection) Contains(id string) bool {
 	for _, entry := range c.Entries {
-		if entry.Id == id {
+		if entry.OriginalId == id {
 			return true
 		}
 	}
 	return false
 }
 
-func (c *EntryCollection) FindById(id string) *entity.Entry {
+func (c *EntryCollection) FindByOriginalId(id string) *entity.Entry {
 	for _, entry := range c.Entries {
-		if entry.Id == id {
+		if entry.OriginalId == id {
 			return &entry
 		}
 	}

@@ -1,9 +1,9 @@
 package app
 
 import (
+	entryFactoryPkg "github.com/anoriar/gophkeeper/internal/client/entry/factory"
+	"github.com/anoriar/gophkeeper/internal/client/entry/repository/entry_ext"
 	"go.uber.org/zap"
-
-	entryFactoryPkg "github.com/anoriar/gophkeeper/internal/client/entry/factory/entry/request"
 
 	"github.com/anoriar/gophkeeper/internal/client/entry/services/encoder"
 
@@ -52,11 +52,14 @@ func NewApp(cnf *config.Config) (*App, error) {
 	loginEntryRepository := entryRepositoryPkg.NewEntrySingleFileRepository(loginFile)
 	cardEntryRepository := entryRepositoryPkg.NewEntrySingleFileRepository(cardFile)
 
+	extEntryRepository := entry_ext.NewEntryExtRepository(gophkeeperHttpClient)
+
 	loginEntryService := entry.NewLoginEntryService(
 		entryFactoryPkg.NewEntryFactory(),
 		loginEntryRepository,
 		secretRepository,
 		aesEncoder,
+		extEntryRepository,
 	)
 	//TODO: проставить другой сервис
 	cardEntryService := entry.NewLoginEntryService(
@@ -64,6 +67,7 @@ func NewApp(cnf *config.Config) (*App, error) {
 		cardEntryRepository,
 		secretRepository,
 		aesEncoder,
+		extEntryRepository,
 	)
 
 	entryServiceProvider := service_provider.NewEntryServiceProvider(loginEntryService, cardEntryService)

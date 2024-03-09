@@ -15,7 +15,3 @@ type Entry struct {
 	Data      []byte          `json:"data"`
 	Meta      json.RawMessage `json:"meta"`
 }
-
-func NewEntry(id string, entryType enum.EntryType, updatedAt time.Time, isDeleted bool, data []byte, meta json.RawMessage) *Entry {
-	return &Entry{Id: id, EntryType: entryType, UpdatedAt: updatedAt, IsDeleted: isDeleted, Data: data, Meta: meta}
-}
