@@ -2,18 +2,18 @@ package factory
 
 import (
 	"encoding/base64"
-
-	"github.com/google/uuid"
+	uuid2 "github.com/anoriar/gophkeeper/internal/server/shared/services/uuid"
 
 	"github.com/anoriar/gophkeeper/internal/server/entry/dto/request/sync"
 	"github.com/anoriar/gophkeeper/internal/server/entry/entity"
 )
 
 type EntryFactory struct {
+	uuidGen uuid2.UUIDGeneratorInterface
 }
 
-func NewEntryFactory() *EntryFactory {
-	return &EntryFactory{}
+func NewEntryFactory(uuidGen uuid2.UUIDGeneratorInterface) *EntryFactory {
+	return &EntryFactory{uuidGen: uuidGen}
 }
 
 func (f *EntryFactory) CreateNewEntryFromRequestItem(requestItem sync.SyncRequestItem, userID string) (entity.Entry, error) {
@@ -22,7 +22,7 @@ func (f *EntryFactory) CreateNewEntryFromRequestItem(requestItem sync.SyncReques
 		return entity.Entry{}, err
 	}
 	return *entity.NewEntry(
-		uuid.NewString(),
+		f.uuidGen.NewString(),
 		requestItem.OriginalId,
 		userID,
 		requestItem.EntryType,

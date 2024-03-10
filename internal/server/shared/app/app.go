@@ -1,6 +1,7 @@
 package app
 
 import (
+	"github.com/anoriar/gophkeeper/internal/server/shared/services/uuid"
 	"go.uber.org/zap"
 
 	entryRepositoryPkg "github.com/anoriar/gophkeeper/internal/server/entry/repository"
@@ -35,13 +36,15 @@ func NewApp(cnf *config.Config) (*App, error) {
 	}
 
 	userRepository := userRepositoryPkg.NewUserRepository(db)
-	authService := auth.NewAuthService(userRepository,
+	authService := auth.NewAuthService(
+		userRepository,
+		uuid.NewUUIDGenerator(),
 		cnf,
 		logger,
 	)
 
 	entryRepository := entryRepositoryPkg.NewEntryRepository(db)
-	syncService := sync.NewSyncService(entryRepository, db, logger)
+	syncService := sync.NewSyncService(entryRepository, uuid.NewUUIDGenerator(), db, logger)
 
 	return &App{
 		Config:      cnf,

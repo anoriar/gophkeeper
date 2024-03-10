@@ -1,9 +1,14 @@
+//go:build !test
+// +build !test
+
 package auth
 
 import (
 	"context"
 	"encoding/hex"
 	"errors"
+	"fmt"
+	"github.com/anoriar/gophkeeper/internal/server/shared/services/uuid"
 
 	"github.com/anoriar/gophkeeper/internal/server/shared/config"
 	"github.com/anoriar/gophkeeper/internal/server/user/services/auth/internal/services/token/jwt"
@@ -35,6 +40,7 @@ type AuthService struct {
 
 func NewAuthService(
 	userRepository repository.UserRepositoryInterface,
+	uuidGen uuid.UUIDGeneratorInterface,
 	config *config.Config,
 	logger *zap.Logger,
 ) *AuthService {
@@ -42,7 +48,7 @@ func NewAuthService(
 		userRepository:  userRepository,
 		passwordService: password.NewArgonPasswordService(),
 		tokenService:    jwt.NewJWTTokenService(config.JwtSecretKey),
-		userFactory:     user2.NewUserFactory(),
+		userFactory:     user2.NewUserFactory(uuidGen),
 		saltFactory:     salt.NewSaltFactory(),
 		logger:          logger,
 	}
@@ -52,7 +58,7 @@ func (service *AuthService) RegisterUser(ctx context.Context, registerUserDto re
 	salt, err := service.saltFactory.GenerateSalt()
 	if err != nil {
 		service.logger.Error(err.Error())
-		return "", err
+		return "", fmt.Errorf("%w: %v", sharedErrors.ErrInternalError, err)
 	}
 	hashedPassword := service.passwordService.GenerateHashedPassword(registerUserDto.Password, salt)
 
@@ -63,13 +69,13 @@ func (service *AuthService) RegisterUser(ctx context.Context, registerUserDto re
 			return "", ErrUserAlreadyExists
 		}
 		service.logger.Error(err.Error())
-		return "", err
+		return "", fmt.Errorf("%w: %v", sharedErrors.ErrInternalError, err)
 	}
 
 	tokenString, err := service.tokenService.BuildTokenString(auth.UserClaims{UserID: newUser.ID})
 	if err != nil {
 		service.logger.Error(err.Error())
-		return "", err
+		return "", fmt.Errorf("%w: %v", sharedErrors.ErrInternalError, err)
 	}
 	return tokenString, nil
 }
@@ -81,12 +87,12 @@ func (service *AuthService) LoginUser(ctx context.Context, dto login.LoginUserRe
 			return "", sharedErrors.ErrUserUnauthorized
 		}
 		service.logger.Error(err.Error())
-		return "", err
+		return "", fmt.Errorf("%w: %v", sharedErrors.ErrInternalError, err)
 	}
 	saltInBytes, err := hex.DecodeString(existedUser.Salt)
 	if err != nil {
 		service.logger.Error(err.Error())
-		return "", err
+		return "", fmt.Errorf("%w: %v", sharedErrors.ErrInternalError, err)
 	}
 	hashedPasswordFromRequest := service.passwordService.GenerateHashedPassword(dto.Password, saltInBytes)
 
@@ -97,7 +103,7 @@ func (service *AuthService) LoginUser(ctx context.Context, dto login.LoginUserRe
 	tokenString, err := service.tokenService.BuildTokenString(auth.UserClaims{UserID: existedUser.ID})
 	if err != nil {
 		service.logger.Error(err.Error())
-		return "", err
+		return "", fmt.Errorf("%w: %v", sharedErrors.ErrInternalError, err)
 	}
 	return tokenString, nil
 }
@@ -109,7 +115,7 @@ func (service *AuthService) ValidateToken(token string) (auth.UserClaims, error)
 			return auth.UserClaims{}, sharedErrors.ErrUserUnauthorized
 		}
 		service.logger.Error(err.Error())
-		return auth.UserClaims{}, err
+		return auth.UserClaims{}, fmt.Errorf("%w: %v", sharedErrors.ErrInternalError, err)
 	}
 
 	return claims, nil

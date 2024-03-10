@@ -3,6 +3,7 @@ package sync
 import (
 	"context"
 	"fmt"
+	"github.com/anoriar/gophkeeper/internal/server/shared/services/uuid"
 
 	"go.uber.org/zap"
 
@@ -31,6 +32,7 @@ type SyncService struct {
 
 func NewSyncService(
 	entryRepository repository.EntryRepositoryInterface,
+	uuidGen uuid.UUIDGeneratorInterface,
 	db *db.Database,
 	logger *zap.Logger,
 ) *SyncService {
@@ -38,7 +40,7 @@ func NewSyncService(
 		entryRepository:      entryRepository,
 		db:                   db,
 		logger:               logger,
-		entryFactory:         factory.NewEntryFactory(),
+		entryFactory:         factory.NewEntryFactory(uuidGen),
 		syncResponseFactory:  syncResponseFactory.NewSyncResponseFactory(),
 		syncRequestValidator: validator.NewSyncRequestValidator(),
 	}
