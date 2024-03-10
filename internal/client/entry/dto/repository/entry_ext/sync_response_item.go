@@ -3,9 +3,10 @@ package entry_ext
 import (
 	"encoding/json"
 	"fmt"
+	"time"
+
 	"github.com/anoriar/gophkeeper/internal/client/entry/enum"
 	sharedErrors "github.com/anoriar/gophkeeper/internal/client/shared/errors"
-	"time"
 )
 
 type SyncResponseItem struct {
@@ -15,8 +16,8 @@ type SyncResponseItem struct {
 	EntryType enum.EntryType
 	// UpdatedAt - время обновления
 	UpdatedAt time.Time
-	// Data - зашифрованные данные
-	Data []byte
+	// Data - зашифрованные данные в base64
+	Data string
 	// Meta - метаданные
 	Meta json.RawMessage
 }
@@ -46,7 +47,7 @@ func (s *SyncResponseItem) UnmarshalJSON(data []byte) error {
 	s.UpdatedAt = updatedAt
 	s.Meta = alias.Meta
 
-	s.Data = []byte(alias.Data)
+	s.Data = alias.Data
 
 	return nil
 }

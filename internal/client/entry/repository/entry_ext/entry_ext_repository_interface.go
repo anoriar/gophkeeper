@@ -2,6 +2,7 @@ package entry_ext
 
 import (
 	"context"
+
 	"github.com/anoriar/gophkeeper/internal/client/entry/dto/repository/entry_ext"
 )
 

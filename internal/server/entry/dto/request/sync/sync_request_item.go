@@ -3,8 +3,9 @@ package sync
 import (
 	"encoding/json"
 	"fmt"
-	errors2 "github.com/anoriar/gophkeeper/internal/server/entry/errors"
 	"time"
+
+	errors2 "github.com/anoriar/gophkeeper/internal/server/entry/errors"
 
 	"github.com/anoriar/gophkeeper/internal/server/entry/enum"
 )
@@ -13,7 +14,7 @@ type SyncRequestItem struct {
 	OriginalId string
 	EntryType  enum.EntryType
 	UpdatedAt  time.Time
-	Data       []byte
+	Data       string
 	Meta       json.RawMessage
 	IsDeleted  bool
 }
@@ -45,7 +46,7 @@ func (e *SyncRequestItem) UnmarshalJSON(data []byte) error {
 	e.UpdatedAt = updatedAt
 	e.Meta = alias.Meta
 
-	e.Data = []byte(alias.Data)
+	e.Data = alias.Data
 
 	return nil
 }

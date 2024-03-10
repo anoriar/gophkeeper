@@ -2,8 +2,9 @@ package entry_ext
 
 import (
 	"encoding/json"
-	"github.com/anoriar/gophkeeper/internal/client/entry/enum"
 	"time"
+
+	"github.com/anoriar/gophkeeper/internal/client/entry/enum"
 )
 
 type SyncRequestItem struct {
@@ -15,8 +16,8 @@ type SyncRequestItem struct {
 	UpdatedAt time.Time `json:"updatedAt"`
 	// IsDeleted - признак, что нужно удалить запись
 	IsDeleted bool `json:"isDeleted"`
-	// Data - зашифрованные данные
-	Data []byte `json:"data"`
+	// Data - зашифрованные данные в base64
+	Data string `json:"data"`
 	// Meta - метаданные
 	Meta json.RawMessage `json:"meta"`
 }

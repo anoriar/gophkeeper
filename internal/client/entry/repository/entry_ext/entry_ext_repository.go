@@ -4,11 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
+
+	"github.com/go-resty/resty/v2"
+
 	"github.com/anoriar/gophkeeper/internal/client/entry/dto/repository/entry_ext"
 	entryErr "github.com/anoriar/gophkeeper/internal/client/entry/errors"
 	sharedErr "github.com/anoriar/gophkeeper/internal/client/shared/errors"
-	"github.com/go-resty/resty/v2"
-	"net/http"
 )
 
 type EntryExtRepository struct {

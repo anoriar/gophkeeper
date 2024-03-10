@@ -1,6 +1,8 @@
 package request
 
 import (
+	"encoding/base64"
+
 	"github.com/anoriar/gophkeeper/internal/client/entry/dto/repository/entry_ext"
 	"github.com/anoriar/gophkeeper/internal/client/entry/entity"
 )
@@ -20,7 +22,7 @@ func (f *SyncRequestFactory) CreateFromEntries(entries []entity.Entry) []entry_e
 			EntryType:  entryEntity.EntryType,
 			UpdatedAt:  entryEntity.UpdatedAt,
 			IsDeleted:  entryEntity.IsDeleted,
-			Data:       entryEntity.Data,
+			Data:       base64.StdEncoding.EncodeToString(entryEntity.Data),
 			Meta:       entryEntity.Meta,
 		})
 	}

@@ -3,9 +3,11 @@ package sync
 import (
 	"context"
 	"fmt"
+
+	"go.uber.org/zap"
+
 	serverErrors "github.com/anoriar/gophkeeper/internal/server/entry/errors"
 	"github.com/anoriar/gophkeeper/internal/server/entry/validator"
-	"go.uber.org/zap"
 
 	"github.com/anoriar/gophkeeper/internal/server/entry/dto/collection"
 	"github.com/anoriar/gophkeeper/internal/server/entry/dto/request/sync"
@@ -150,7 +152,6 @@ func (s SyncService) getUpdatedItems(request sync.SyncRequest, userEntries colle
 				}
 				updatedEntries = append(updatedEntries, item)
 			}
-
 		}
 	}
 	return updatedEntries, nil

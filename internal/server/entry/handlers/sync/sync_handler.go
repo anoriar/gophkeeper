@@ -3,9 +3,10 @@ package sync
 import (
 	"encoding/json"
 	"errors"
-	sharedErrors "github.com/anoriar/gophkeeper/internal/server/shared/errors"
 	"io"
 	"net/http"
+
+	sharedErrors "github.com/anoriar/gophkeeper/internal/server/shared/errors"
 
 	entryErrors "github.com/anoriar/gophkeeper/internal/server/entry/errors"
 

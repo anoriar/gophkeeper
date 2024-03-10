@@ -1,7 +1,8 @@
 package factory
 
 import (
-	"encoding/json"
+	"encoding/base64"
+
 	"github.com/google/uuid"
 
 	"github.com/anoriar/gophkeeper/internal/server/entry/dto/request/sync"
@@ -16,7 +17,7 @@ func NewEntryFactory() *EntryFactory {
 }
 
 func (f *EntryFactory) CreateNewEntryFromRequestItem(requestItem sync.SyncRequestItem, userID string) (entity.Entry, error) {
-	data, err := json.Marshal(requestItem.Data)
+	data, err := base64.StdEncoding.DecodeString(requestItem.Data)
 	if err != nil {
 		return entity.Entry{}, err
 	}
@@ -32,7 +33,7 @@ func (f *EntryFactory) CreateNewEntryFromRequestItem(requestItem sync.SyncReques
 }
 
 func (f *EntryFactory) CreateEntryFromRequestItem(id string, requestItem sync.SyncRequestItem, userID string) (entity.Entry, error) {
-	data, err := json.Marshal(requestItem.Data)
+	data, err := base64.StdEncoding.DecodeString(requestItem.Data)
 	if err != nil {
 		return entity.Entry{}, err
 	}

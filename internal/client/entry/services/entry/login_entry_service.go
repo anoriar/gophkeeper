@@ -3,6 +3,7 @@ package entry
 import (
 	"context"
 	"fmt"
+
 	"github.com/anoriar/gophkeeper/internal/client/entry/dto/command"
 	"github.com/anoriar/gophkeeper/internal/client/entry/dto/command_response"
 	entryFactoryPkg "github.com/anoriar/gophkeeper/internal/client/entry/factory"
@@ -137,7 +138,10 @@ func (l *LoginEntryService) Sync(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("sync entries error: %w", err)
 	}
-	newEntries := l.entryFactory.CreateFromSyncResponse(syncResponse.Items)
+	newEntries, err := l.entryFactory.CreateFromSyncResponse(syncResponse.Items)
+	if err != nil {
+		return fmt.Errorf("sync entries error: %w", err)
+	}
 	err = l.loginEntryRepository.Rewrite(ctx, newEntries)
 	if err != nil {
 		return fmt.Errorf("rewrite entries error: %w", err)

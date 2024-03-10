@@ -1,6 +1,7 @@
 package sync
 
 import (
+	"encoding/base64"
 	"fmt"
 
 	"github.com/anoriar/gophkeeper/internal/server/entry/dto/collection"
@@ -29,5 +30,5 @@ func (f *SyncResponseFactory) CreateSyncResponse(entryCollection collection.Entr
 }
 
 func (f *SyncResponseFactory) CreateSyncResponseItem(entry entity.Entry) (sync.SyncResponseItem, error) {
-	return *sync.NewSyncResponseItem(entry.OriginalId, entry.EntryType, entry.UpdatedAt, entry.Data, entry.Meta), nil
+	return *sync.NewSyncResponseItem(entry.OriginalId, entry.EntryType, entry.UpdatedAt, base64.StdEncoding.EncodeToString(entry.Data), entry.Meta), nil
 }
