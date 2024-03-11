@@ -1,8 +1,9 @@
 package app
 
 import (
-	"github.com/anoriar/gophkeeper/internal/server/shared/services/uuid"
 	"go.uber.org/zap"
+
+	"github.com/anoriar/gophkeeper/internal/server/shared/services/uuid"
 
 	entryRepositoryPkg "github.com/anoriar/gophkeeper/internal/server/entry/repository"
 	"github.com/anoriar/gophkeeper/internal/server/entry/services/sync"

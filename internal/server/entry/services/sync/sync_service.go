@@ -3,6 +3,7 @@ package sync
 import (
 	"context"
 	"fmt"
+
 	"github.com/anoriar/gophkeeper/internal/server/shared/services/uuid"
 
 	"go.uber.org/zap"

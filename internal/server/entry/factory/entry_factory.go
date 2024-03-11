@@ -2,6 +2,7 @@ package factory
 
 import (
 	"encoding/base64"
+
 	uuid2 "github.com/anoriar/gophkeeper/internal/server/shared/services/uuid"
 
 	"github.com/anoriar/gophkeeper/internal/server/entry/dto/request/sync"

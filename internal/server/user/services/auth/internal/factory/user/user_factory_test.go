@@ -1,10 +1,12 @@
 package user
 
 import (
+	"testing"
+
+	"github.com/golang/mock/gomock"
+
 	"github.com/anoriar/gophkeeper/internal/server/shared/services/uuid/mock_uuid_generator"
 	"github.com/anoriar/gophkeeper/internal/server/user/entity"
-	"github.com/golang/mock/gomock"
-	"testing"
 )
 
 func TestUserFactory_Create(t *testing.T) {

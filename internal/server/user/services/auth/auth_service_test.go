@@ -4,9 +4,10 @@ import (
 	"context"
 	"encoding/hex"
 	"errors"
+	"testing"
+
 	"github.com/anoriar/gophkeeper/internal/server/user/dto/requests/login"
 	"github.com/anoriar/gophkeeper/internal/server/user/services/auth/internal/services/token/tokenerrors"
-	"testing"
 
 	"github.com/anoriar/gophkeeper/internal/server/shared/app/logger"
 	sharedErrors "github.com/anoriar/gophkeeper/internal/server/shared/errors"

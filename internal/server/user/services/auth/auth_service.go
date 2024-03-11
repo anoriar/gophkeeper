@@ -8,6 +8,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+
 	"github.com/anoriar/gophkeeper/internal/server/shared/services/uuid"
 
 	"github.com/anoriar/gophkeeper/internal/server/shared/config"
