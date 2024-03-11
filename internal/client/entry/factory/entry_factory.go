@@ -72,17 +72,17 @@ func (l *EntryFactory) createData(data interface{}) ([]byte, error) {
 	}
 }
 
-func (l *EntryFactory) CreateFromSyncResponse(syncResponseItems []entry_ext.SyncResponseItem) ([]entity.Entry, error) {
-	entries := make([]entity.Entry, 0, len(syncResponseItems))
+func (l *EntryFactory) CreateFromSyncResponse(syncResponse entry_ext.SyncResponse) ([]entity.Entry, error) {
+	entries := make([]entity.Entry, 0, len(syncResponse.Items))
 
-	for _, responseItem := range syncResponseItems {
+	for _, responseItem := range syncResponse.Items {
 		data, err := base64.StdEncoding.DecodeString(responseItem.Data)
 		if err != nil {
 			return nil, fmt.Errorf("%w: %v", errors.ErrInternalError, "data is not decoded")
 		}
 		entries = append(entries, entity.Entry{
 			Id:        responseItem.OriginalId,
-			EntryType: responseItem.EntryType,
+			EntryType: syncResponse.SyncType,
 			UpdatedAt: responseItem.UpdatedAt,
 			IsDeleted: false,
 			Data:      data,

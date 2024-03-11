@@ -25,6 +25,7 @@ func TestEntryFactory_CreateEntryFromRequestItem(t *testing.T) {
 		id          string
 		requestItem sync.SyncRequestItem
 		userID      string
+		syncType    enum.EntryType
 	}
 
 	decodedData, err := base64.StdEncoding.DecodeString("dL8e3WcogDHLFMwrCSPk9nZs8qXnWwBUupHiLuMuPaWDAuxBmUM/cH+Sv41fBb9OEf/AHjx0nx2yl5xewZM=")
@@ -46,13 +47,13 @@ func TestEntryFactory_CreateEntryFromRequestItem(t *testing.T) {
 				id: "ab161651-ec2c-4cbb-a6c6-f8cf414e503d",
 				requestItem: sync.SyncRequestItem{
 					OriginalId: "65ad590d-77d6-49d4-a6e7-963d7b6f50a7",
-					EntryType:  enum.Login,
 					UpdatedAt:  time.Date(2024, time.March, 10, 12, 0, 0, 0, time.UTC),
 					Data:       "dL8e3WcogDHLFMwrCSPk9nZs8qXnWwBUupHiLuMuPaWDAuxBmUM/cH+Sv41fBb9OEf/AHjx0nx2yl5xewZM=",
 					Meta:       json.RawMessage(""),
 					IsDeleted:  false,
 				},
-				userID: "b632eb93-0c31-4d6c-8fb9-282f3fb7e54e",
+				userID:   "b632eb93-0c31-4d6c-8fb9-282f3fb7e54e",
+				syncType: enum.Login,
 			},
 			want: entity.Entry{
 				Id:         "ab161651-ec2c-4cbb-a6c6-f8cf414e503d",
@@ -71,13 +72,13 @@ func TestEntryFactory_CreateEntryFromRequestItem(t *testing.T) {
 				id: "ab161651-ec2c-4cbb-a6c6-f8cf414e503d",
 				requestItem: sync.SyncRequestItem{
 					OriginalId: "65ad590d-77d6-49d4-a6e7-963d7b6f50a7",
-					EntryType:  enum.Login,
 					UpdatedAt:  time.Date(2024, time.March, 10, 12, 0, 0, 0, time.UTC),
 					Data:       "=",
 					Meta:       json.RawMessage(""),
 					IsDeleted:  false,
 				},
-				userID: "b632eb93-0c31-4d6c-8fb9-282f3fb7e54e",
+				userID:   "b632eb93-0c31-4d6c-8fb9-282f3fb7e54e",
+				syncType: enum.Login,
 			},
 			want: entity.Entry{},
 		},
@@ -88,7 +89,7 @@ func TestEntryFactory_CreateEntryFromRequestItem(t *testing.T) {
 			f := &EntryFactory{
 				uuidGen: uuidGeneratorMock,
 			}
-			got, err := f.CreateEntryFromRequestItem(tt.args.id, tt.args.requestItem, tt.args.userID)
+			got, err := f.CreateEntryFromRequestItem(tt.args.id, tt.args.requestItem, tt.args.userID, tt.args.syncType)
 			if tt.wantErr && err == nil {
 				t.Errorf("CreateEntryFromRequestItem() error expected")
 			}
@@ -112,6 +113,7 @@ func TestEntryFactory_CreateNewEntryFromRequestItem(t *testing.T) {
 	type args struct {
 		requestItem sync.SyncRequestItem
 		userID      string
+		syncType    enum.EntryType
 	}
 
 	decodedData, err := base64.StdEncoding.DecodeString("dL8e3WcogDHLFMwrCSPk9nZs8qXnWwBUupHiLuMuPaWDAuxBmUM/cH+Sv41fBb9OEf/AHjx0nx2yl5xewZM=")
@@ -134,13 +136,13 @@ func TestEntryFactory_CreateNewEntryFromRequestItem(t *testing.T) {
 			args: args{
 				requestItem: sync.SyncRequestItem{
 					OriginalId: "65ad590d-77d6-49d4-a6e7-963d7b6f50a7",
-					EntryType:  enum.Login,
 					UpdatedAt:  time.Date(2024, time.March, 10, 12, 0, 0, 0, time.UTC),
 					Data:       "dL8e3WcogDHLFMwrCSPk9nZs8qXnWwBUupHiLuMuPaWDAuxBmUM/cH+Sv41fBb9OEf/AHjx0nx2yl5xewZM=",
 					Meta:       json.RawMessage(""),
 					IsDeleted:  false,
 				},
-				userID: "b632eb93-0c31-4d6c-8fb9-282f3fb7e54e",
+				userID:   "b632eb93-0c31-4d6c-8fb9-282f3fb7e54e",
+				syncType: enum.Login,
 			},
 			want: entity.Entry{
 				Id:         "ab161651-ec2c-4cbb-a6c6-f8cf414e503d",
@@ -160,13 +162,13 @@ func TestEntryFactory_CreateNewEntryFromRequestItem(t *testing.T) {
 			args: args{
 				requestItem: sync.SyncRequestItem{
 					OriginalId: "65ad590d-77d6-49d4-a6e7-963d7b6f50a7",
-					EntryType:  enum.Login,
 					UpdatedAt:  time.Date(2024, time.March, 10, 12, 0, 0, 0, time.UTC),
 					Data:       "=",
 					Meta:       json.RawMessage(""),
 					IsDeleted:  false,
 				},
-				userID: "b632eb93-0c31-4d6c-8fb9-282f3fb7e54e",
+				userID:   "b632eb93-0c31-4d6c-8fb9-282f3fb7e54e",
+				syncType: enum.Login,
 			},
 			want: entity.Entry{},
 		},
@@ -177,7 +179,7 @@ func TestEntryFactory_CreateNewEntryFromRequestItem(t *testing.T) {
 			f := &EntryFactory{
 				uuidGen: uuidGeneratorMock,
 			}
-			got, err := f.CreateNewEntryFromRequestItem(tt.args.requestItem, tt.args.userID)
+			got, err := f.CreateNewEntryFromRequestItem(tt.args.requestItem, tt.args.userID, tt.args.syncType)
 			if tt.wantErr && err == nil {
 				t.Errorf("CreateNewEntryFromRequestItem() error expected")
 			}

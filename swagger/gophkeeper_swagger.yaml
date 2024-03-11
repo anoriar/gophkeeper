@@ -107,6 +107,8 @@ components:
     DataSyncRequest:
       type: object
       properties:
+        syncType:
+          $ref: "#/components/schemas/typeEnum"
         items:
           type: array
           items:
@@ -115,17 +117,14 @@ components:
     EntryRequest:
       type: object
       properties:
-        id:
+        originalId:
           type: string
-          description: id элемента
+          description: id элемента на клиенте
           example: 0664b999-fdfc-4f2f-9c35-dace58da6400
-        type:
-          $ref: '#/components/schemas/typeEnum'
         data:
-          description: Данные, которые необходимо синхронизировать
-          oneOf:
-            - $ref: "#/components/schemas/LoginData"
-            - $ref: "#/components/schemas/CardData"
+          description: Данные, которые необходимо синхронизировать (закодированы в base64)
+          type: string
+          example: "YW8f11zfrW0gse6R9eiqc8IHSzOpl5EiURrg+COniWLEG/TXPV/h3Vcgarpl/j/ax9/UAAQxIjhFFJTmWWo="
         isDeleted:
           type: boolean
           description: Определяет, была ли удалена запись на стороне клиента
@@ -140,6 +139,8 @@ components:
     DataSyncResponse:
       type: object
       properties:
+        syncType:
+          $ref: "#/components/schemas/typeEnum"
         items:
           type: array
           items:
@@ -148,53 +149,20 @@ components:
     EntryResponse:
       type: object
       properties:
-        id:
+        originalId:
           type: string
-          description: id элемента
+          description: id элемента на клиенте
           example: 0664b999-fdfc-4f2f-9c35-dace58da6400
-        type:
-          type: string
-          enum:
-            - login
-            - card
-          example: login
         data:
-          description: Данные, которые необходимо синхронизировать
-          oneOf:
-            - $ref: "#/components/schemas/LoginData"
-            - $ref: "#/components/schemas/CardData"
+          type: string
+          description: Данные, которые необходимо синхронизировать (закодированы в base64)
+          example: "YW8f11zfrW0gse6R9eiqc8IHSzOpl5EiURrg+COniWLEG/TXPV/h3Vcgarpl/j/ax9/UAAQxIjhFFJTmWWo="
         updatedAt:
           type: string
           description: время обновления/создания записи в формате RFC3339
           example: 2020-12-10T15:15:45+03:00
         meta:
           $ref: "#/components/schemas/Meta"
-
-    LoginData:
-      type: object
-      properties:
-        login:
-          type: string
-          example: user
-        password:
-          type: string
-          example: password
-
-    CardData:
-      type: object
-      properties:
-        number:
-          type: string
-          example: 1234567890123456
-        expireDate:
-          type: string
-          example: 03/28
-        holder:
-          type: string
-          example: Test Testov
-        cvv:
-          type: string
-          example: 123
 
     Meta:
       type: object

@@ -124,7 +124,7 @@ func (l *LoginEntryService) List(ctx context.Context) ([]command_response.ListEn
 	return l.responseFactory.CreateListResponseFromEntity(entries), nil
 }
 
-func (l *LoginEntryService) Sync(ctx context.Context) error {
+func (l *LoginEntryService) Sync(ctx context.Context, command command.SyncEntryCommand) error {
 	token, err := l.secretRepository.GetAuthToken()
 	if err != nil {
 		return fmt.Errorf("get token error: %w", err)
@@ -133,12 +133,12 @@ func (l *LoginEntryService) Sync(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("get entries list error: %w", err)
 	}
-	syncRequestItems := l.syncRequestFactory.CreateFromEntries(entries)
+	syncRequestItems := l.syncRequestFactory.CreateSyncRequest(command.EntryType, entries)
 	syncResponse, err := l.extEntryRepository.Sync(ctx, token, syncRequestItems)
 	if err != nil {
 		return fmt.Errorf("sync entries error: %w", err)
 	}
-	newEntries, err := l.entryFactory.CreateFromSyncResponse(syncResponse.Items)
+	newEntries, err := l.entryFactory.CreateFromSyncResponse(syncResponse)
 	if err != nil {
 		return fmt.Errorf("sync entries error: %w", err)
 	}

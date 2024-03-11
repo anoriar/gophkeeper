@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/anoriar/gophkeeper/internal/server/entry/enum"
+
 	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jmoiron/sqlx"
@@ -24,11 +26,11 @@ func NewEntryRepository(db *db.Database) *EntryRepository {
 	return &EntryRepository{db: db}
 }
 
-func (e *EntryRepository) GetEntriesByUserID(ctx context.Context, userID string) (collection.EntryCollection, error) {
+func (e *EntryRepository) GetEntriesByUserIDAndType(ctx context.Context, userID string, entryType enum.EntryType) (collection.EntryCollection, error) {
 	var resultItems []entity.Entry
-	rows, err := e.db.Conn.QueryxContext(ctx, "SELECT * FROM entries WHERE user_id = $1", userID)
+	rows, err := e.db.Conn.QueryxContext(ctx, "SELECT * FROM entries WHERE user_id = $1 AND type = $2", userID, string(entryType))
 	if err != nil {
-		return *collection.NewEntryCollection(nil), fmt.Errorf("GetEntriesByUserID: %w: %v", errors2.ErrInternalError, err)
+		return *collection.NewEntryCollection(nil), fmt.Errorf("GetEntriesByUserIDAndType: %w: %v", errors2.ErrInternalError, err)
 	}
 	defer rows.Close()
 
@@ -36,13 +38,13 @@ func (e *EntryRepository) GetEntriesByUserID(ctx context.Context, userID string)
 		var entry entity.Entry
 		err := rows.StructScan(&entry)
 		if err != nil {
-			return *collection.NewEntryCollection(nil), fmt.Errorf("GetEntriesByUserID: %w: %v", errors2.ErrInternalError, err)
+			return *collection.NewEntryCollection(nil), fmt.Errorf("GetEntriesByUserIDAndType: %w: %v", errors2.ErrInternalError, err)
 		}
 		resultItems = append(resultItems, entry)
 	}
 
 	if rows.Err() != nil {
-		return *collection.NewEntryCollection(nil), fmt.Errorf("GetEntriesByUserID: %w: %v", errors2.ErrInternalError, err)
+		return *collection.NewEntryCollection(nil), fmt.Errorf("GetEntriesByUserIDAndType: %w: %v", errors2.ErrInternalError, err)
 	}
 
 	return *collection.NewEntryCollection(resultItems), nil

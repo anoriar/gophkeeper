@@ -21,8 +21,8 @@ func NewEntryExtRepository(client *resty.Client) *EntryExtRepository {
 	return &EntryExtRepository{client: client}
 }
 
-func (e *EntryExtRepository) Sync(ctx context.Context, token string, entries []entry_ext.SyncRequestItem) (entry_ext.SyncResponse, error) {
-	body, err := json.Marshal(map[string]interface{}{"items": entries})
+func (e *EntryExtRepository) Sync(ctx context.Context, token string, request entry_ext.SyncRequest) (entry_ext.SyncResponse, error) {
+	body, err := json.Marshal(request)
 	if err != nil {
 		return entry_ext.SyncResponse{}, fmt.Errorf("%w: %v", sharedErr.ErrInternalError, err)
 	}

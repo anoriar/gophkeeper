@@ -20,13 +20,13 @@ Content-Type: application/json
 ### sync entries
 POST {{baseUrl}}/api/entries/sync
 Content-Type: application/json
-Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTAwNzcxODMsIlVzZXJJRCI6ImI2MzJlYjkzLTBjMzEtNGQ2Yy04ZmI5LTI4MmYzZmI3ZTU0ZSJ9.gROyNjjdVgEmHXg543ejgK2XF8QzBrBkeMVQA8heoqw
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTAxNzA1NzMsIlVzZXJJRCI6ImEyZTQ3Nzk5LTY1YjktNDFmMy1iMGE1LTk2ODUzNzQyMTM1MCJ9.OVYcUJoIkA2BaCQvCY-FFIlQ5GPdyFzeiuobh7zWTcs
 
 {
+  "syncType": "login",
   "items": [
     {
       "originalId": "0bc6c22e-d8b5-4057-9d28-eb5b7a233364",
-      "type": "login",
       "data": "MX1mUs+puMP3FNlWITgzf5vS2JmcsVu/AivvxURLiQaPQJIxeVbF5/zGUBNVWuW5kzWhHKAi4E+gtoQ8Y9k=",
       "isDeleted": false,
       "updatedAt": "2020-12-10T15:15:45+00:00",
@@ -37,8 +37,7 @@ Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTAwNzcxODMsIlVz
     },
     {
       "originalId": "3da6111c-6316-4993-aeff-74a2c3f345f9",
-      "type": "card",
-      "data": "2DAKVANzdYtKSMvMj11o/wEI8NnCZI3UkPu6z2UZtnOkdKSzdGddkkvu7EKST2OQ0Hcus7nfaosO/agavL8=",
+      "data": "MX1mUs+puMP3FNlWITgzf5vS2JmcsVu/AivvxURLiQaPQJIxeVbF5/zGUBNVWuW5kzWhHKAi4E+gtoQ8Y9k=",
       "isDeleted": false,
       "updatedAt": "2020-12-10T15:15:45+00:00",
       "meta": {

@@ -9,5 +9,5 @@ import (
 type EntryFactoryInterface interface {
 	CreateFromAddCmd(command command.AddEntryCommand) (entity.Entry, error)
 	CreateFromEditCmd(command command.EditEntryCommand) (entity.Entry, error)
-	CreateFromSyncResponse(syncResponseItems []entry_ext.SyncResponseItem) ([]entity.Entry, error)
+	CreateFromSyncResponse(syncResponse entry_ext.SyncResponse) ([]entity.Entry, error)
 }

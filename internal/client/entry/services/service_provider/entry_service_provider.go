@@ -86,7 +86,7 @@ func (sp *EntryServiceProvider) Sync(ctx context.Context, cmd command.SyncEntryC
 	if err != nil {
 		return err
 	}
-	err = service.Sync(ctx)
+	err = service.Sync(ctx, cmd)
 	if err != nil {
 		return err
 	}

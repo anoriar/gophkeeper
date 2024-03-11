@@ -7,5 +7,5 @@ import (
 )
 
 type EntryExtRepositoryInterface interface {
-	Sync(ctx context.Context, token string, entries []entry_ext.SyncRequestItem) (entry_ext.SyncResponse, error)
+	Sync(ctx context.Context, token string, request entry_ext.SyncRequest) (entry_ext.SyncResponse, error)
 }

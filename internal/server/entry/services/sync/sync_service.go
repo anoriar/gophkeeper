@@ -53,7 +53,7 @@ func (s SyncService) Sync(ctx context.Context, request sync.SyncRequest) (syncRe
 		return syncResponsePkg.SyncResponse{}, fmt.Errorf("%w: serverErrors: %v", serverErrors.ErrSyncRequestNotValid, validationErrors)
 	}
 
-	userEntries, err := s.entryRepository.GetEntriesByUserID(ctx, request.UserID)
+	userEntries, err := s.entryRepository.GetEntriesByUserIDAndType(ctx, request.UserID, request.SyncType)
 	if err != nil {
 		s.logger.Error("get user entries error", zap.String("error", err.Error()))
 		return syncResponsePkg.SyncResponse{}, fmt.Errorf("get user entries error: %w", err)
@@ -79,12 +79,12 @@ func (s SyncService) Sync(ctx context.Context, request sync.SyncRequest) (syncRe
 		return syncResponsePkg.SyncResponse{}, fmt.Errorf("execute sync error: %w", err)
 	}
 
-	actualEntries, err := s.entryRepository.GetEntriesByUserID(ctx, request.UserID)
+	actualEntries, err := s.entryRepository.GetEntriesByUserIDAndType(ctx, request.UserID, request.SyncType)
 	if err != nil {
 		s.logger.Error("get actual entries error", zap.String("error", err.Error()))
 		return syncResponsePkg.SyncResponse{}, fmt.Errorf("get actual entries error: %w", err)
 	}
-	response, err := s.syncResponseFactory.CreateSyncResponse(actualEntries)
+	response, err := s.syncResponseFactory.CreateSyncResponse(actualEntries, request.SyncType)
 	if err != nil {
 		s.logger.Error("create command_response dto error", zap.String("error", err.Error()))
 		return syncResponsePkg.SyncResponse{}, fmt.Errorf("create command_response dto error: %w", err)
@@ -130,7 +130,7 @@ func (s SyncService) getNewItems(request sync.SyncRequest, userEntries collectio
 	newEntries := make([]entity.Entry, 0, len(request.Items))
 	for _, requestItem := range request.Items {
 		if requestItem.IsDeleted != true && !userEntries.Contains(requestItem.OriginalId) {
-			item, err := s.entryFactory.CreateNewEntryFromRequestItem(requestItem, request.UserID)
+			item, err := s.entryFactory.CreateNewEntryFromRequestItem(requestItem, request.UserID, request.SyncType)
 			if err != nil {
 				return nil, err
 			}
@@ -149,7 +149,7 @@ func (s SyncService) getUpdatedItems(request sync.SyncRequest, userEntries colle
 		userEntry := userEntries.FindByOriginalId(requestItem.OriginalId)
 		if userEntry != nil {
 			if requestItem.UpdatedAt.After(userEntry.UpdatedAt) {
-				item, err := s.entryFactory.CreateEntryFromRequestItem(userEntry.Id, requestItem, request.UserID)
+				item, err := s.entryFactory.CreateEntryFromRequestItem(userEntry.Id, requestItem, request.UserID, request.SyncType)
 				if err != nil {
 					return nil, err
 				}
