@@ -2,7 +2,10 @@ package sync
 
 import (
 	"context"
+	"errors"
 	"fmt"
+
+	sharedErrors "github.com/anoriar/gophkeeper/internal/server/shared/errors"
 
 	"github.com/anoriar/gophkeeper/internal/server/shared/services/uuid"
 
@@ -27,14 +30,14 @@ type SyncService struct {
 	entryFactory         *factory.EntryFactory
 	syncResponseFactory  *syncResponseFactory.SyncResponseFactory
 	syncRequestValidator *validator.SyncRequestValidator
-	db                   *db.Database
+	db                   db.DatabaseInterface
 	logger               *zap.Logger
 }
 
 func NewSyncService(
 	entryRepository repository.EntryRepositoryInterface,
 	uuidGen uuid.UUIDGeneratorInterface,
-	db *db.Database,
+	db db.DatabaseInterface,
 	logger *zap.Logger,
 ) *SyncService {
 	return &SyncService{
@@ -50,69 +53,65 @@ func NewSyncService(
 func (s SyncService) Sync(ctx context.Context, request sync.SyncRequest) (syncResponsePkg.SyncResponse, error) {
 	validationErrors := s.syncRequestValidator.ValidateSyncRequest(request)
 	if len(validationErrors) > 0 {
-		return syncResponsePkg.SyncResponse{}, fmt.Errorf("%w: serverErrors: %v", serverErrors.ErrSyncRequestNotValid, validationErrors)
+		return syncResponsePkg.SyncResponse{}, fmt.Errorf("%w: %v", serverErrors.ErrSyncRequestNotValid, validationErrors)
 	}
 
 	userEntries, err := s.entryRepository.GetEntriesByUserIDAndType(ctx, request.UserID, request.SyncType)
 	if err != nil {
 		s.logger.Error("get user entries error", zap.String("error", err.Error()))
-		return syncResponsePkg.SyncResponse{}, fmt.Errorf("get user entries error: %w", err)
+		return syncResponsePkg.SyncResponse{}, fmt.Errorf("%w: %v", sharedErrors.ErrInternalError, err)
 	}
 
-	newEntries, err := s.getNewItems(request, userEntries)
-	if err != nil {
-		s.logger.Error("get new entries error", zap.String("error", err.Error()))
-		return syncResponsePkg.SyncResponse{}, fmt.Errorf("get new entries error: %w", err)
-	}
-
-	updatedEntries, err := s.getUpdatedItems(request, userEntries)
-	if err != nil {
-		s.logger.Error("get updated entries error", zap.String("error", err.Error()))
-		return syncResponsePkg.SyncResponse{}, fmt.Errorf("get updated entries error: %w", err)
-	}
-
+	newEntries := s.getNewItems(request, userEntries)
+	updatedEntries := s.getUpdatedItems(request, userEntries)
 	deletedIds := s.getDeletedIds(request, userEntries)
 
 	err = s.executeSync(ctx, newEntries, updatedEntries, deletedIds)
 	if err != nil {
+		if errors.Is(err, sharedErrors.ErrConflict) {
+			s.logger.Error("execute sync error", zap.String("error", err.Error()))
+			return syncResponsePkg.SyncResponse{}, fmt.Errorf("%w", err)
+		}
 		s.logger.Error("execute sync error", zap.String("error", err.Error()))
-		return syncResponsePkg.SyncResponse{}, fmt.Errorf("execute sync error: %w", err)
+		return syncResponsePkg.SyncResponse{}, fmt.Errorf("%w: %v", sharedErrors.ErrInternalError, err)
 	}
 
 	actualEntries, err := s.entryRepository.GetEntriesByUserIDAndType(ctx, request.UserID, request.SyncType)
 	if err != nil {
 		s.logger.Error("get actual entries error", zap.String("error", err.Error()))
-		return syncResponsePkg.SyncResponse{}, fmt.Errorf("get actual entries error: %w", err)
+		return syncResponsePkg.SyncResponse{}, fmt.Errorf("%w: %v", sharedErrors.ErrInternalError, err)
 	}
-	response, err := s.syncResponseFactory.CreateSyncResponse(actualEntries, request.SyncType)
-	if err != nil {
-		s.logger.Error("create command_response dto error", zap.String("error", err.Error()))
-		return syncResponsePkg.SyncResponse{}, fmt.Errorf("create command_response dto error: %w", err)
-	}
+	response := s.syncResponseFactory.CreateSyncResponse(actualEntries, request.SyncType)
 	return response, nil
 }
 
 func (s SyncService) executeSync(ctx context.Context, newEntries []entity.Entry, updatedEntries []entity.Entry, deletedIds []string) error {
-	txx, err := s.db.Conn.BeginTxx(ctx, nil)
+	txx, err := s.db.BeginTransaction(ctx)
 	if err != nil {
 		return fmt.Errorf("create transaction error: %v", err)
 	}
 	ctx = context.WithValue(ctx, context2.TransactionKey, txx)
 
 	defer txx.Rollback()
-	err = s.entryRepository.AddEntries(ctx, newEntries)
-	if err != nil {
-		return fmt.Errorf("add entries error: %w", err)
+	if len(newEntries) > 0 {
+		err = s.entryRepository.AddEntries(ctx, newEntries)
+		if err != nil {
+			return fmt.Errorf("add entries error: %w", err)
+		}
 	}
 
-	err = s.entryRepository.UpdateEntries(ctx, updatedEntries)
-	if err != nil {
-		return fmt.Errorf("executeSync entries error: %v", err)
+	if len(updatedEntries) > 0 {
+		err = s.entryRepository.UpdateEntries(ctx, updatedEntries)
+		if err != nil {
+			return fmt.Errorf("executeSync entries error: %v", err)
+		}
 	}
 
-	err = s.entryRepository.DeleteEntries(ctx, deletedIds)
-	if err != nil {
-		return fmt.Errorf("delete entries error: %v", err)
+	if len(deletedIds) > 0 {
+		err = s.entryRepository.DeleteEntries(ctx, deletedIds)
+		if err != nil {
+			return fmt.Errorf("delete entries error: %v", err)
+		}
 	}
 
 	err = txx.Commit()
@@ -126,21 +125,18 @@ func (s SyncService) executeSync(ctx context.Context, newEntries []entity.Entry,
 	return nil
 }
 
-func (s SyncService) getNewItems(request sync.SyncRequest, userEntries collection.EntryCollection) ([]entity.Entry, error) {
+func (s SyncService) getNewItems(request sync.SyncRequest, userEntries collection.EntryCollection) []entity.Entry {
 	newEntries := make([]entity.Entry, 0, len(request.Items))
 	for _, requestItem := range request.Items {
 		if requestItem.IsDeleted != true && !userEntries.Contains(requestItem.OriginalId) {
-			item, err := s.entryFactory.CreateNewEntryFromRequestItem(requestItem, request.UserID, request.SyncType)
-			if err != nil {
-				return nil, err
-			}
+			item := s.entryFactory.CreateNewEntryFromRequestItem(requestItem, request.UserID, request.SyncType)
 			newEntries = append(newEntries, item)
 		}
 	}
-	return newEntries, nil
+	return newEntries
 }
 
-func (s SyncService) getUpdatedItems(request sync.SyncRequest, userEntries collection.EntryCollection) ([]entity.Entry, error) {
+func (s SyncService) getUpdatedItems(request sync.SyncRequest, userEntries collection.EntryCollection) []entity.Entry {
 	updatedEntries := make([]entity.Entry, 0, len(request.Items))
 	for _, requestItem := range request.Items {
 		if requestItem.OriginalId == "" || requestItem.IsDeleted == true {
@@ -149,15 +145,12 @@ func (s SyncService) getUpdatedItems(request sync.SyncRequest, userEntries colle
 		userEntry := userEntries.FindByOriginalId(requestItem.OriginalId)
 		if userEntry != nil {
 			if requestItem.UpdatedAt.After(userEntry.UpdatedAt) {
-				item, err := s.entryFactory.CreateEntryFromRequestItem(userEntry.Id, requestItem, request.UserID, request.SyncType)
-				if err != nil {
-					return nil, err
-				}
+				item := s.entryFactory.CreateEntryFromRequestItem(userEntry.Id, requestItem, request.UserID, request.SyncType)
 				updatedEntries = append(updatedEntries, item)
 			}
 		}
 	}
-	return updatedEntries, nil
+	return updatedEntries
 }
 
 func (s SyncService) getDeletedIds(request sync.SyncRequest, userEntries collection.EntryCollection) []string {

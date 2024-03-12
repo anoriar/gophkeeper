@@ -21,6 +21,7 @@ func (v *SyncRequestValidator) ValidateSyncRequest(request sync.SyncRequest) val
 		if reqItem.OriginalId == "" {
 			validationErrors = append(validationErrors, fmt.Errorf("item %d: originalId required", itemIndex))
 		}
+
 		if len(reqItem.Data) == 0 {
 			validationErrors = append(validationErrors, fmt.Errorf("item %d: data required", itemIndex))
 		}

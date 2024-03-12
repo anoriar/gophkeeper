@@ -1,6 +1,8 @@
 package sync
 
-import "github.com/anoriar/gophkeeper/internal/server/entry/enum"
+import (
+	"github.com/anoriar/gophkeeper/internal/server/entry/enum"
+)
 
 type SyncResponse struct {
 	Items    []SyncResponseItem `json:"items"`

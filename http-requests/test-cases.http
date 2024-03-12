@@ -20,7 +20,7 @@ Content-Type: application/json
 ### sync entries
 POST {{baseUrl}}/api/entries/sync
 Content-Type: application/json
-Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTAxNzA1NzMsIlVzZXJJRCI6ImEyZTQ3Nzk5LTY1YjktNDFmMy1iMGE1LTk2ODUzNzQyMTM1MCJ9.OVYcUJoIkA2BaCQvCY-FFIlQ5GPdyFzeiuobh7zWTcs
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTAyNjk0NzYsIlVzZXJJRCI6ImEyZTQ3Nzk5LTY1YjktNDFmMy1iMGE1LTk2ODUzNzQyMTM1MCJ9.aJppjXqHaFSOzPy-4a4-x7HJUHkijjCi0Kf8egrs8V4
 
 {
   "syncType": "login",

@@ -31,6 +31,7 @@ func NewApp(cnf *config.Config) (*App, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	logger, err := loggerPkg.Initialize(cnf.LogLevel)
 	if err != nil {
 		return nil, err

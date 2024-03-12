@@ -1,6 +1,7 @@
 package sync
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"time"
 )
@@ -8,7 +9,7 @@ import (
 type SyncRequestItem struct {
 	OriginalId string
 	UpdatedAt  time.Time
-	Data       string
+	Data       []byte
 	Meta       json.RawMessage
 	IsDeleted  bool
 }
@@ -35,7 +36,11 @@ func (e *SyncRequestItem) UnmarshalJSON(data []byte) error {
 	e.UpdatedAt = updatedAt
 	e.Meta = alias.Meta
 
-	e.Data = alias.Data
+	itemData, err := base64.StdEncoding.DecodeString(alias.Data)
+	if err != nil {
+		return err
+	}
+	e.Data = itemData
 
 	return nil
 }

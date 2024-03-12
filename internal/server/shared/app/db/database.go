@@ -1,6 +1,10 @@
 package db
 
-import "github.com/jmoiron/sqlx"
+import (
+	"context"
+
+	"github.com/jmoiron/sqlx"
+)
 
 type Database struct {
 	Conn *sqlx.DB
@@ -16,6 +20,15 @@ func (db *Database) Ping() error {
 		return err
 	}
 	return nil
+}
+
+func (db *Database) BeginTransaction(ctx context.Context) (DBTransactionInterface, error) {
+	txx, err := db.Conn.BeginTxx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+	transaction := NewDBTransaction(txx)
+	return transaction, nil
 }
 
 func (db *Database) Close() {

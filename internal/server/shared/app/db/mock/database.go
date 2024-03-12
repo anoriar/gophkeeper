@@ -5,9 +5,12 @@
 package mock
 
 import (
+	context "context"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
+
+	db "github.com/anoriar/gophkeeper/internal/server/shared/app/db"
 )
 
 // MockDatabaseInterface is a mock of DatabaseInterface interface.
@@ -31,6 +34,21 @@ func NewMockDatabaseInterface(ctrl *gomock.Controller) *MockDatabaseInterface {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockDatabaseInterface) EXPECT() *MockDatabaseInterfaceMockRecorder {
 	return m.recorder
+}
+
+// BeginTransaction mocks base method.
+func (m *MockDatabaseInterface) BeginTransaction(ctx context.Context) (db.DBTransactionInterface, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "BeginTransaction", ctx)
+	ret0, _ := ret[0].(db.DBTransactionInterface)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// BeginTransaction indicates an expected call of BeginTransaction.
+func (mr *MockDatabaseInterfaceMockRecorder) BeginTransaction(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BeginTransaction", reflect.TypeOf((*MockDatabaseInterface)(nil).BeginTransaction), ctx)
 }
 
 // Close mocks base method.

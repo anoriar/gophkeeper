@@ -127,7 +127,16 @@ func (e *EntryRepository) getTxFromContextOrBeginNew(ctx context.Context) (*sqlx
 	var err error
 	txCtxParam := ctx.Value(customCtx.TransactionKey)
 	if txCtxParam != nil {
-		txx = txCtxParam.(*sqlx.Tx)
+		tx, ok := txCtxParam.(*db.DBTransaction)
+		if ok {
+			if txx, ok = tx.GetTransaction().(*sqlx.Tx); ok {
+				return txx, nil
+			} else {
+				return nil, fmt.Errorf("%w: %v", errors2.ErrInternalError, "can not get transaction")
+			}
+		} else {
+			return nil, fmt.Errorf("%w: %v", errors2.ErrInternalError, "can not get transaction")
+		}
 	} else {
 		txx, err = e.db.Conn.BeginTxx(ctx, nil)
 		if err != nil {
