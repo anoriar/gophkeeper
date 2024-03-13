@@ -1,6 +1,7 @@
 package secret
 
 import (
+	"errors"
 	"io"
 	"os"
 )
@@ -10,6 +11,9 @@ const (
 	authTokenFilename      = ".token"
 	masterPasswordFilename = ".pass"
 )
+
+var ErrTokenNotFound = errors.New("auth token not found")
+var ErrMasterPasswordNotFound = errors.New("master password not found")
 
 type SecretRepository struct {
 }
@@ -50,6 +54,10 @@ func (s SecretRepository) GetAuthToken() (string, error) {
 		return "", err
 	}
 
+	if len(content) == 0 {
+		return "", ErrTokenNotFound
+	}
+
 	return string(content), nil
 }
 
@@ -83,6 +91,11 @@ func (s SecretRepository) GetMasterPassword() (string, error) {
 	if err != nil {
 		return "", err
 	}
+
+	if len(content) == 0 {
+		return "", ErrMasterPasswordNotFound
+	}
+
 	return string(content), nil
 }
 

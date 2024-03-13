@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/anoriar/gophkeeper/internal/client/entry/dto/repository/entry_ext"
+	"github.com/anoriar/gophkeeper/internal/client/shared/services/uuid"
 
-	"github.com/google/uuid"
+	"github.com/anoriar/gophkeeper/internal/client/entry/dto/repository/entry_ext"
 
 	"github.com/anoriar/gophkeeper/internal/client/entry/dto"
 	"github.com/anoriar/gophkeeper/internal/client/entry/dto/command"
@@ -17,10 +17,11 @@ import (
 )
 
 type EntryFactory struct {
+	uuidGen uuid.UUIDGeneratorInterface
 }
 
-func NewEntryFactory() *EntryFactory {
-	return &EntryFactory{}
+func NewEntryFactory(uuidGen uuid.UUIDGeneratorInterface) *EntryFactory {
+	return &EntryFactory{uuidGen: uuidGen}
 }
 
 func (l *EntryFactory) CreateFromAddCmd(command command.AddEntryCommand) (entity.Entry, error) {
@@ -29,7 +30,7 @@ func (l *EntryFactory) CreateFromAddCmd(command command.AddEntryCommand) (entity
 		return entity.Entry{}, err
 	}
 	return entity.Entry{
-		Id:        uuid.NewString(),
+		Id:        l.uuidGen.NewString(),
 		EntryType: command.EntryType,
 		UpdatedAt: time.Now(),
 		IsDeleted: false,

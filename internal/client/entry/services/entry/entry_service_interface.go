@@ -8,6 +8,7 @@ import (
 	"github.com/anoriar/gophkeeper/internal/client/entry/dto/command"
 )
 
+//go:generate mockgen -source=entry_service_interface.go -destination=mock_entry_service/mock_entry_service.go -package=mock_entry_service
 type EntryServiceInterface interface {
 	// Add Добавление записи
 	Add(ctx context.Context, command command.AddEntryCommand) error

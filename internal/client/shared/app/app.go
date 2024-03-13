@@ -3,6 +3,8 @@ package app
 import (
 	"go.uber.org/zap"
 
+	"github.com/anoriar/gophkeeper/internal/client/shared/services/uuid"
+
 	entryFactoryPkg "github.com/anoriar/gophkeeper/internal/client/entry/factory"
 	"github.com/anoriar/gophkeeper/internal/client/entry/repository/entry_ext"
 
@@ -42,6 +44,7 @@ func NewApp(cnf *config.Config) (*App, error) {
 		return nil, err
 	}
 
+	uuidGen := uuid.NewUUIDGenerator()
 	gophkeeperHttpClient := client.NewHTTPClient(cnf.ServerAddress, logger)
 
 	userRepository := user.NewUserRepository(gophkeeperHttpClient)
@@ -55,20 +58,21 @@ func NewApp(cnf *config.Config) (*App, error) {
 
 	extEntryRepository := entry_ext.NewEntryExtRepository(gophkeeperHttpClient)
 
-	loginEntryService := entry.NewLoginEntryService(
-		entryFactoryPkg.NewEntryFactory(),
+	loginEntryService := entry.NewEntryService(
+		entryFactoryPkg.NewEntryFactory(uuidGen),
 		loginEntryRepository,
 		secretRepository,
 		aesEncoder,
 		extEntryRepository,
+		logger,
 	)
-	//TODO: проставить другой сервис
-	cardEntryService := entry.NewLoginEntryService(
-		entryFactoryPkg.NewEntryFactory(),
+	cardEntryService := entry.NewEntryService(
+		entryFactoryPkg.NewEntryFactory(uuidGen),
 		cardEntryRepository,
 		secretRepository,
 		aesEncoder,
 		extEntryRepository,
+		logger,
 	)
 
 	entryServiceProvider := service_provider.NewEntryServiceProvider(loginEntryService, cardEntryService)
