@@ -2,9 +2,10 @@ package sync
 
 import (
 	"encoding/base64"
-	"reflect"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 
 	"github.com/anoriar/gophkeeper/internal/server/entry/dto/collection"
 	"github.com/anoriar/gophkeeper/internal/server/entry/dto/response/sync"
@@ -56,7 +57,7 @@ func TestSyncResponseFactory_CreateSyncResponse(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			f := &SyncResponseFactory{}
-			if got := f.CreateSyncResponse(tt.args.entryCollection, tt.args.syncType); !reflect.DeepEqual(got, tt.want) {
+			if got := f.CreateSyncResponse(tt.args.entryCollection, tt.args.syncType); !assert.Equal(t, got, tt.want) {
 				t.Errorf("CreateSyncResponse() = %v, want %v", got, tt.want)
 			}
 		})
@@ -96,7 +97,7 @@ func TestSyncResponseFactory_CreateSyncResponseItem(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			f := &SyncResponseFactory{}
-			if got := f.CreateSyncResponseItem(tt.args.entry); !reflect.DeepEqual(got, tt.want) {
+			if got := f.CreateSyncResponseItem(tt.args.entry); !assert.Equal(t, got, tt.want) {
 				t.Errorf("CreateSyncResponseItem() = %v, want %v", got, tt.want)
 			}
 		})

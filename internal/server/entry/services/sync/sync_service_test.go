@@ -4,9 +4,10 @@ import (
 	"context"
 	"encoding/base64"
 	"errors"
-	"reflect"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
@@ -370,7 +371,7 @@ func TestSyncService_Sync(t *testing.T) {
 					t.Errorf("Sync() error expectation: got = %v, want %v", err, tt.err)
 				}
 			}
-			if !reflect.DeepEqual(got, tt.want) {
+			if !assert.Equal(t, got, tt.want) {
 				t.Errorf("Sync() got = %v, want %v", got, tt.want)
 			}
 		})
@@ -650,7 +651,7 @@ func TestSyncService_getDeletedIds(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := NewSyncService(entryRepositoryMock, uuidGenMock, dbMock, loggerMock)
-			if got := s.getDeletedIds(tt.args.request, tt.args.userEntries); !reflect.DeepEqual(got, tt.want) {
+			if got := s.getDeletedIds(tt.args.request, tt.args.userEntries); !assert.Equal(t, got, tt.want) {
 				t.Errorf("getDeletedIds() = %v, want %v", got, tt.want)
 			}
 		})
@@ -772,7 +773,7 @@ func TestSyncService_getNewItems(t *testing.T) {
 		tt.mockBehaviour()
 		t.Run(tt.name, func(t *testing.T) {
 			s := NewSyncService(entryRepositoryMock, uuidGenMock, dbMock, loggerMock)
-			if got := s.getNewItems(tt.args.request, tt.args.userEntries); !reflect.DeepEqual(got, tt.want) {
+			if got := s.getNewItems(tt.args.request, tt.args.userEntries); !assert.Equal(t, got, tt.want) {
 				t.Errorf("getNewItems() = %v, want %v", got, tt.want)
 			}
 		})
@@ -930,7 +931,7 @@ func TestSyncService_getUpdatedItems(t *testing.T) {
 		tt.mockBehaviour()
 		t.Run(tt.name, func(t *testing.T) {
 			s := NewSyncService(entryRepositoryMock, uuidGenMock, dbMock, loggerMock)
-			if got := s.getUpdatedItems(tt.args.request, tt.args.userEntries); !reflect.DeepEqual(got, tt.want) {
+			if got := s.getUpdatedItems(tt.args.request, tt.args.userEntries); !assert.Equal(t, got, tt.want) {
 				t.Errorf("getUpdatedItems() = %v, want %v", got, tt.want)
 			}
 		})

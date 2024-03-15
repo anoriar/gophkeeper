@@ -3,9 +3,10 @@ package entry
 import (
 	"context"
 	"errors"
-	"reflect"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
@@ -25,7 +26,7 @@ import (
 	"github.com/anoriar/gophkeeper/internal/client/user/repository/secret/mock_secret_repository"
 )
 
-func TestLoginEntryService_Add(t *testing.T) {
+func TestEntryService_Add(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -188,7 +189,7 @@ func TestLoginEntryService_Add(t *testing.T) {
 	}
 }
 
-func TestLoginEntryService_Edit(t *testing.T) {
+func TestEntryService_Edit(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -377,7 +378,7 @@ func TestLoginEntryService_Edit(t *testing.T) {
 	}
 }
 
-func TestLoginEntryService_Delete(t *testing.T) {
+func TestEntryService_Delete(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -396,14 +397,106 @@ func TestLoginEntryService_Delete(t *testing.T) {
 	tests := []struct {
 		name          string
 		args          args
-		mockBehaviour func()
+		mockBehaviour func(ctx context.Context, command command.DeleteEntryCommand)
 		wantErr       error
 	}{
-		// TODO: Add test cases.
+		{
+			name: "success",
+			args: args{
+				ctx: context.Background(),
+				command: command.DeleteEntryCommand{
+					Id:        "225de857-71c5-452f-96f7-ff385d808083",
+					EntryType: enum.Login,
+				},
+			},
+			mockBehaviour: func(ctx context.Context, command command.DeleteEntryCommand) {
+				dataInBytes := []byte("test data")
+				entryMock := entity.Entry{
+					Id:        "225de857-71c5-452f-96f7-ff385d808083",
+					EntryType: enum.Login,
+					UpdatedAt: time.Date(2024, time.March, 10, 12, 0, 0, 0, time.UTC),
+					IsDeleted: false,
+					Data:      dataInBytes,
+					Meta:      []byte(""),
+				}
+				entryRepositoryMock.EXPECT().GetById(ctx, "225de857-71c5-452f-96f7-ff385d808083").Return(entryMock, nil)
+				entryRepositoryMock.EXPECT().Edit(ctx, entity.Entry{
+					Id:        "225de857-71c5-452f-96f7-ff385d808083",
+					EntryType: enum.Login,
+					UpdatedAt: time.Date(2024, time.March, 10, 12, 0, 0, 0, time.UTC),
+					IsDeleted: true,
+					Data:      dataInBytes,
+					Meta:      []byte(""),
+				}).Return(nil)
+			},
+			wantErr: nil,
+		},
+		{
+			name: "entry not found error",
+			args: args{
+				ctx: context.Background(),
+				command: command.DeleteEntryCommand{
+					Id:        "225de857-71c5-452f-96f7-ff385d808083",
+					EntryType: enum.Login,
+				},
+			},
+			mockBehaviour: func(ctx context.Context, command command.DeleteEntryCommand) {
+
+				entryRepositoryMock.EXPECT().GetById(ctx, "225de857-71c5-452f-96f7-ff385d808083").Return(entity.Entry{}, sharedErrors.ErrEntryNotFound)
+			},
+			wantErr: sharedErrors.ErrEntryNotFound,
+		},
+		{
+			name: "get by id internal error",
+			args: args{
+				ctx: context.Background(),
+				command: command.DeleteEntryCommand{
+					Id:        "225de857-71c5-452f-96f7-ff385d808083",
+					EntryType: enum.Login,
+				},
+			},
+			mockBehaviour: func(ctx context.Context, command command.DeleteEntryCommand) {
+
+				entryRepositoryMock.EXPECT().GetById(ctx, "225de857-71c5-452f-96f7-ff385d808083").Return(entity.Entry{}, sharedErrors.ErrInternalError)
+			},
+			wantErr: sharedErrors.ErrInternalError,
+		},
+		{
+			name: "edit internal error",
+			args: args{
+				ctx: context.Background(),
+				command: command.DeleteEntryCommand{
+					Id:        "225de857-71c5-452f-96f7-ff385d808083",
+					EntryType: enum.Login,
+				},
+			},
+			mockBehaviour: func(ctx context.Context, command command.DeleteEntryCommand) {
+
+				dataInBytes := []byte("test data")
+				entryMock := entity.Entry{
+					Id:        "225de857-71c5-452f-96f7-ff385d808083",
+					EntryType: enum.Login,
+					UpdatedAt: time.Date(2024, time.March, 10, 12, 0, 0, 0, time.UTC),
+					IsDeleted: false,
+					Data:      dataInBytes,
+					Meta:      []byte(""),
+				}
+				entryRepositoryMock.EXPECT().GetById(ctx, "225de857-71c5-452f-96f7-ff385d808083").Return(entryMock, nil)
+				entryRepositoryMock.EXPECT().Edit(ctx, entity.Entry{
+					Id:        "225de857-71c5-452f-96f7-ff385d808083",
+					EntryType: enum.Login,
+					UpdatedAt: time.Date(2024, time.March, 10, 12, 0, 0, 0, time.UTC),
+					IsDeleted: true,
+					Data:      dataInBytes,
+					Meta:      []byte(""),
+				}).Return(sharedErrors.ErrInternalError)
+			},
+			wantErr: sharedErrors.ErrInternalError,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tt.mockBehaviour()
+			tt.mockBehaviour(tt.args.ctx, tt.args.command)
 			l := NewEntryService(
 				entryFactoryMock,
 				entryRepositoryMock,
@@ -422,7 +515,7 @@ func TestLoginEntryService_Delete(t *testing.T) {
 	}
 }
 
-func TestLoginEntryService_Detail(t *testing.T) {
+func TestEntryService_Detail(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -441,15 +534,136 @@ func TestLoginEntryService_Detail(t *testing.T) {
 	tests := []struct {
 		name          string
 		args          args
-		mockBehaviour func()
+		mockBehaviour func(ctx context.Context, command command.DetailEntryCommand)
 		want          command_response.DetailEntryCommandResponse
 		wantErr       error
 	}{
-		// TODO: Add test cases.
+		{
+			name: "success",
+			args: args{
+				ctx: context.Background(),
+				command: command.DetailEntryCommand{
+					Id:        "225de857-71c5-452f-96f7-ff385d808083",
+					EntryType: enum.Login,
+				},
+			},
+			mockBehaviour: func(ctx context.Context, command command.DetailEntryCommand) {
+				masterPass := "1234"
+				encryptedData := []byte("test data")
+				entryMock := entity.Entry{
+					Id:        "225de857-71c5-452f-96f7-ff385d808083",
+					EntryType: enum.Login,
+					UpdatedAt: time.Date(2024, time.March, 10, 12, 0, 0, 0, time.UTC),
+					IsDeleted: false,
+					Data:      encryptedData,
+					Meta:      []byte(""),
+				}
+				decryptedData := []byte("{\"login\": \"test\", \"password\": \"pass\"}")
+				secretRepositoryMock.EXPECT().GetMasterPassword().Return(masterPass, nil)
+				entryRepositoryMock.EXPECT().GetById(ctx, "225de857-71c5-452f-96f7-ff385d808083").Return(entryMock, nil)
+				encryptorMock.EXPECT().Decrypt(encryptedData, masterPass).Return(decryptedData, nil)
+			},
+			want: command_response.DetailEntryCommandResponse{
+				Id:        "225de857-71c5-452f-96f7-ff385d808083",
+				EntryType: enum.Login,
+				UpdatedAt: time.Date(2024, time.March, 10, 12, 0, 0, 0, time.UTC),
+				IsDeleted: false,
+				Data: &dto.LoginData{
+					Login:    "test",
+					Password: "pass",
+				},
+				Meta: []byte(""),
+			},
+			wantErr: nil,
+		},
+		{
+			name: "master pass not found error",
+			args: args{
+				ctx: context.Background(),
+				command: command.DetailEntryCommand{
+					Id:        "225de857-71c5-452f-96f7-ff385d808083",
+					EntryType: enum.Login,
+				},
+			},
+			mockBehaviour: func(ctx context.Context, entryCommand command.DetailEntryCommand) {
+				secretRepositoryMock.EXPECT().GetMasterPassword().Return("", secret.ErrMasterPasswordNotFound)
+			},
+			wantErr: secret.ErrMasterPasswordNotFound,
+		},
+		{
+			name: "get master pass internal error",
+			args: args{
+				ctx: context.Background(),
+				command: command.DetailEntryCommand{
+					Id:        "225de857-71c5-452f-96f7-ff385d808083",
+					EntryType: enum.Login,
+				},
+			},
+			mockBehaviour: func(ctx context.Context, entryCommand command.DetailEntryCommand) {
+				secretRepositoryMock.EXPECT().GetMasterPassword().Return("", sharedErrors.ErrInternalError)
+			},
+			wantErr: sharedErrors.ErrInternalError,
+		},
+		{
+			name: "get by id not found error",
+			args: args{
+				ctx: context.Background(),
+				command: command.DetailEntryCommand{
+					Id:        "225de857-71c5-452f-96f7-ff385d808083",
+					EntryType: enum.Login,
+				},
+			},
+			mockBehaviour: func(ctx context.Context, entryCommand command.DetailEntryCommand) {
+				secretRepositoryMock.EXPECT().GetMasterPassword().Return("12345", nil)
+				entryRepositoryMock.EXPECT().GetById(ctx, "225de857-71c5-452f-96f7-ff385d808083").Return(entity.Entry{}, sharedErrors.ErrEntryNotFound)
+			},
+			wantErr: sharedErrors.ErrEntryNotFound,
+		},
+		{
+			name: "get by id internal error",
+			args: args{
+				ctx: context.Background(),
+				command: command.DetailEntryCommand{
+					Id:        "225de857-71c5-452f-96f7-ff385d808083",
+					EntryType: enum.Login,
+				},
+			},
+			mockBehaviour: func(ctx context.Context, entryCommand command.DetailEntryCommand) {
+				secretRepositoryMock.EXPECT().GetMasterPassword().Return("12345", nil)
+				entryRepositoryMock.EXPECT().GetById(ctx, "225de857-71c5-452f-96f7-ff385d808083").Return(entity.Entry{}, sharedErrors.ErrInternalError)
+			},
+			wantErr: sharedErrors.ErrInternalError,
+		},
+		{
+			name: "decrypt internal error",
+			args: args{
+				ctx: context.Background(),
+				command: command.DetailEntryCommand{
+					Id:        "225de857-71c5-452f-96f7-ff385d808083",
+					EntryType: enum.Login,
+				},
+			},
+			mockBehaviour: func(ctx context.Context, command command.DetailEntryCommand) {
+				masterPass := "1234"
+				encryptedData := []byte("test data")
+				entryMock := entity.Entry{
+					Id:        "225de857-71c5-452f-96f7-ff385d808083",
+					EntryType: enum.Login,
+					UpdatedAt: time.Date(2024, time.March, 10, 12, 0, 0, 0, time.UTC),
+					IsDeleted: false,
+					Data:      encryptedData,
+					Meta:      []byte(""),
+				}
+				secretRepositoryMock.EXPECT().GetMasterPassword().Return(masterPass, nil)
+				entryRepositoryMock.EXPECT().GetById(ctx, "225de857-71c5-452f-96f7-ff385d808083").Return(entryMock, nil)
+				encryptorMock.EXPECT().Decrypt(encryptedData, masterPass).Return(nil, sharedErrors.ErrInternalError)
+			},
+			wantErr: sharedErrors.ErrInternalError,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tt.mockBehaviour()
+			tt.mockBehaviour(tt.args.ctx, tt.args.command)
 			l := NewEntryService(
 				entryFactoryMock,
 				entryRepositoryMock,
@@ -464,14 +678,15 @@ func TestLoginEntryService_Detail(t *testing.T) {
 					t.Errorf("Detail() error expectation: got = %v, want %v", err, tt.wantErr)
 				}
 			}
-			if !reflect.DeepEqual(got, tt.want) {
+
+			if !assert.Equal(t, got, tt.want) {
 				t.Errorf("Detail() got = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestLoginEntryService_List(t *testing.T) {
+func TestEntryService_List(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -486,18 +701,64 @@ func TestLoginEntryService_List(t *testing.T) {
 	type args struct {
 		ctx context.Context
 	}
-	tests := []struct {
+	var tests = []struct {
 		name          string
 		args          args
-		mockBehaviour func()
+		mockBehaviour func(ctx context.Context)
 		want          []command_response.ListEntryCommandResponse
 		wantErr       error
 	}{
-		// TODO: Add test cases.
+		{
+			name: "success",
+			args: args{ctx: context.Background()},
+			mockBehaviour: func(ctx context.Context) {
+				entryRepositoryMock.EXPECT().GetList(ctx).Return([]entity.Entry{
+					{
+						Id:        "225de857-71c5-452f-96f7-ff385d808083",
+						EntryType: enum.Login,
+						UpdatedAt: time.Date(2023, time.March, 10, 12, 0, 0, 0, time.UTC),
+						IsDeleted: false,
+						Data:      []byte("data"),
+						Meta:      []byte(""),
+					},
+					{
+						Id:        "60d016e5-eae1-49f6-bb00-7d4709a38f4c",
+						EntryType: enum.Login,
+						UpdatedAt: time.Date(2024, time.March, 10, 12, 0, 0, 0, time.UTC),
+						IsDeleted: false,
+						Data:      []byte("data2"),
+						Meta:      []byte(""),
+					},
+				}, nil)
+			},
+			want: []command_response.ListEntryCommandResponse{
+				{
+					Id:        "225de857-71c5-452f-96f7-ff385d808083",
+					EntryType: enum.Login,
+					UpdatedAt: time.Date(2023, time.March, 10, 12, 0, 0, 0, time.UTC),
+					IsDeleted: false,
+				},
+				{
+					Id:        "60d016e5-eae1-49f6-bb00-7d4709a38f4c",
+					EntryType: enum.Login,
+					UpdatedAt: time.Date(2024, time.March, 10, 12, 0, 0, 0, time.UTC),
+					IsDeleted: false,
+				},
+			},
+		},
+		{
+			name: "get list internal error",
+			args: args{ctx: context.Background()},
+			mockBehaviour: func(ctx context.Context) {
+				entryRepositoryMock.EXPECT().GetList(ctx).Return(nil, sharedErrors.ErrInternalError)
+			},
+			want:    nil,
+			wantErr: sharedErrors.ErrInternalError,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tt.mockBehaviour()
+			tt.mockBehaviour(tt.args.ctx)
 			l := NewEntryService(
 				entryFactoryMock,
 				entryRepositoryMock,
@@ -512,14 +773,14 @@ func TestLoginEntryService_List(t *testing.T) {
 					t.Errorf("List() error expectation: got = %v, want %v", err, tt.wantErr)
 				}
 			}
-			if !reflect.DeepEqual(got, tt.want) {
+			if !assert.Equal(t, got, tt.want) {
 				t.Errorf("List() got = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestLoginEntryService_Sync(t *testing.T) {
+func TestEntryService_Sync(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
