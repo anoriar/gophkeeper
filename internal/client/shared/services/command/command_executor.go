@@ -33,12 +33,28 @@ func (sp *CommandExecutor) ExecuteCommand(ctx context.Context, command command.C
 		return nil
 	case *entryCommandPkg.AddEntryCommand:
 		if cmd, ok := command.(*entryCommandPkg.AddEntryCommand); ok {
-			return sp.app.EntryServiceProvider.Add(ctx, *cmd)
+			entry, err := sp.app.EntryServiceProvider.Add(ctx, *cmd)
+			if err != nil {
+				return err
+			}
+			response, err := json.MarshalIndent(entry, "", "    ")
+			if err != nil {
+				return err
+			}
+			fmt.Printf("%s\n", response)
 		}
 		return nil
 	case *entryCommandPkg.EditEntryCommand:
 		if cmd, ok := command.(*entryCommandPkg.EditEntryCommand); ok {
-			return sp.app.EntryServiceProvider.Edit(ctx, *cmd)
+			entry, err := sp.app.EntryServiceProvider.Edit(ctx, *cmd)
+			if err != nil {
+				return err
+			}
+			response, err := json.MarshalIndent(entry, "", "    ")
+			if err != nil {
+				return err
+			}
+			fmt.Printf("%s\n", response)
 		}
 		return nil
 	case *entryCommandPkg.DeleteEntryCommand:

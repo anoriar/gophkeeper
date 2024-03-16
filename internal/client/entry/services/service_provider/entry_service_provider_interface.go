@@ -9,10 +9,10 @@ import (
 )
 
 type EntryServiceProviderInterface interface {
-	Add(ctx context.Context, cmd command.AddEntryCommand) error
-	Edit(ctx context.Context, cmd command.EditEntryCommand) error
+	Add(ctx context.Context, cmd command.AddEntryCommand) (command_response.DetailEntryResponse, error)
+	Edit(ctx context.Context, cmd command.EditEntryCommand) (command_response.DetailEntryResponse, error)
 	Delete(ctx context.Context, cmd command.DeleteEntryCommand) error
-	Detail(ctx context.Context, cmd command.DetailEntryCommand) (command_response.DetailEntryCommandResponse, error)
+	Detail(ctx context.Context, cmd command.DetailEntryCommand) (command_response.DetailEntryResponse, error)
 	GetList(ctx context.Context, cmd command.ListEntryCommand) ([]command_response.ListEntryCommandResponse, error)
 	Sync(ctx context.Context, cmd command.SyncEntryCommand) error
 }

@@ -38,11 +38,12 @@ func (m *MockEntryServiceInterface) EXPECT() *MockEntryServiceInterfaceMockRecor
 }
 
 // Add mocks base method.
-func (m *MockEntryServiceInterface) Add(ctx context.Context, command command.AddEntryCommand) error {
+func (m *MockEntryServiceInterface) Add(ctx context.Context, command command.AddEntryCommand) (command_response.DetailEntryResponse, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Add", ctx, command)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(command_response.DetailEntryResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // Add indicates an expected call of Add.
@@ -66,10 +67,10 @@ func (mr *MockEntryServiceInterfaceMockRecorder) Delete(ctx, command interface{}
 }
 
 // Detail mocks base method.
-func (m *MockEntryServiceInterface) Detail(ctx context.Context, command command.DetailEntryCommand) (command_response.DetailEntryCommandResponse, error) {
+func (m *MockEntryServiceInterface) Detail(ctx context.Context, command command.DetailEntryCommand) (command_response.DetailEntryResponse, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Detail", ctx, command)
-	ret0, _ := ret[0].(command_response.DetailEntryCommandResponse)
+	ret0, _ := ret[0].(command_response.DetailEntryResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -81,11 +82,12 @@ func (mr *MockEntryServiceInterfaceMockRecorder) Detail(ctx, command interface{}
 }
 
 // Edit mocks base method.
-func (m *MockEntryServiceInterface) Edit(ctx context.Context, command command.EditEntryCommand) error {
+func (m *MockEntryServiceInterface) Edit(ctx context.Context, command command.EditEntryCommand) (command_response.DetailEntryResponse, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Edit", ctx, command)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(command_response.DetailEntryResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // Edit indicates an expected call of Edit.

@@ -58,6 +58,7 @@ func TestEntryService_Add(t *testing.T) {
 		name          string
 		args          args
 		mockBehaviour func(ctx context.Context, entryCommand command.AddEntryCommand)
+		want          command_response.DetailEntryResponse
 		wantErr       error
 	}{
 		{
@@ -68,7 +69,7 @@ func TestEntryService_Add(t *testing.T) {
 			},
 			mockBehaviour: func(ctx context.Context, entryCommand command.AddEntryCommand) {
 				masterPass := "12345"
-				dataInBytes := []byte("test data")
+				dataInBytes := []byte("{\"login\": \"test\", \"password\": \"pass\"}")
 				entryMock := entity.Entry{
 					Id:        "cd06a579-311d-498e-aa01-d6ab589bf8bb",
 					EntryType: enum.Login,
@@ -83,6 +84,17 @@ func TestEntryService_Add(t *testing.T) {
 				encryptorMock.EXPECT().Encrypt(dataInBytes, masterPass).Return(encryptedData, nil)
 				entryMock.Data = encryptedData
 				entryRepositoryMock.EXPECT().Add(ctx, entryMock).Return(nil)
+			},
+			want: command_response.DetailEntryResponse{
+				Id:        "cd06a579-311d-498e-aa01-d6ab589bf8bb",
+				EntryType: enum.Login,
+				UpdatedAt: time.Date(2024, time.March, 10, 12, 0, 0, 0, time.UTC),
+				IsDeleted: false,
+				Data: &dto.LoginData{
+					Login:    "test",
+					Password: "pass",
+				},
+				Meta: []byte(""),
 			},
 			wantErr: nil,
 		},
@@ -128,7 +140,7 @@ func TestEntryService_Add(t *testing.T) {
 			},
 			mockBehaviour: func(ctx context.Context, entryCommand command.AddEntryCommand) {
 				masterPass := "12345"
-				dataInBytes := []byte("test data")
+				dataInBytes := []byte("{\"login\": \"test\", \"password\": \"pass\"}")
 				entryMock := entity.Entry{
 					Id:        "cd06a579-311d-498e-aa01-d6ab589bf8bb",
 					EntryType: enum.Login,
@@ -152,7 +164,7 @@ func TestEntryService_Add(t *testing.T) {
 			},
 			mockBehaviour: func(ctx context.Context, entryCommand command.AddEntryCommand) {
 				masterPass := "12345"
-				dataInBytes := []byte("test data")
+				dataInBytes := []byte("{\"login\": \"test\", \"password\": \"pass\"}")
 				entryMock := entity.Entry{
 					Id:        "cd06a579-311d-498e-aa01-d6ab589bf8bb",
 					EntryType: enum.Login,
@@ -182,11 +194,14 @@ func TestEntryService_Add(t *testing.T) {
 				extRepositoryMock,
 				loggerMock,
 			)
-			err := l.Add(tt.args.ctx, tt.args.command)
+			got, err := l.Add(tt.args.ctx, tt.args.command)
 			if tt.wantErr != nil {
 				if !errors.Is(err, tt.wantErr) {
 					t.Errorf("Add() error expectation: got = %v, want %v", err, tt.wantErr)
 				}
+			}
+			if !assert.Equal(t, got, tt.want) {
+				t.Errorf("Add() got = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -221,6 +236,7 @@ func TestEntryService_Edit(t *testing.T) {
 		name          string
 		args          args
 		mockBehaviour func(ctx context.Context, entryCommand command.EditEntryCommand)
+		want          command_response.DetailEntryResponse
 		wantErr       error
 	}{
 		{
@@ -231,7 +247,7 @@ func TestEntryService_Edit(t *testing.T) {
 			},
 			mockBehaviour: func(ctx context.Context, entryCommand command.EditEntryCommand) {
 				masterPass := "12345"
-				dataInBytes := []byte("test data")
+				dataInBytes := []byte("{\"login\": \"test\", \"password\": \"pass\"}")
 				entryMock := entity.Entry{
 					Id:        "ef77aba6-7ed4-421d-926a-93804ab96733",
 					EntryType: enum.Login,
@@ -246,6 +262,17 @@ func TestEntryService_Edit(t *testing.T) {
 				encryptorMock.EXPECT().Encrypt(dataInBytes, masterPass).Return(encryptedData, nil)
 				entryMock.Data = encryptedData
 				entryRepositoryMock.EXPECT().Edit(ctx, entryMock).Return(nil)
+			},
+			want: command_response.DetailEntryResponse{
+				Id:        "ef77aba6-7ed4-421d-926a-93804ab96733",
+				EntryType: enum.Login,
+				UpdatedAt: time.Date(2024, time.March, 10, 12, 0, 0, 0, time.UTC),
+				IsDeleted: false,
+				Data: &dto.LoginData{
+					Login:    "test",
+					Password: "pass",
+				},
+				Meta: []byte(""),
 			},
 			wantErr: nil,
 		},
@@ -291,7 +318,7 @@ func TestEntryService_Edit(t *testing.T) {
 			},
 			mockBehaviour: func(ctx context.Context, entryCommand command.EditEntryCommand) {
 				masterPass := "12345"
-				dataInBytes := []byte("test data")
+				dataInBytes := []byte("{\"login\": \"test\", \"password\": \"pass\"}")
 				entryMock := entity.Entry{
 					Id:        "ef77aba6-7ed4-421d-926a-93804ab96733",
 					EntryType: enum.Login,
@@ -315,7 +342,7 @@ func TestEntryService_Edit(t *testing.T) {
 			},
 			mockBehaviour: func(ctx context.Context, entryCommand command.EditEntryCommand) {
 				masterPass := "12345"
-				dataInBytes := []byte("test data")
+				dataInBytes := []byte("{\"login\": \"test\", \"password\": \"pass\"}")
 				entryMock := entity.Entry{
 					Id:        "ef77aba6-7ed4-421d-926a-93804ab96733",
 					EntryType: enum.Login,
@@ -341,7 +368,7 @@ func TestEntryService_Edit(t *testing.T) {
 			},
 			mockBehaviour: func(ctx context.Context, entryCommand command.EditEntryCommand) {
 				masterPass := "12345"
-				dataInBytes := []byte("test data")
+				dataInBytes := []byte("{\"login\": \"test\", \"password\": \"pass\"}")
 				entryMock := entity.Entry{
 					Id:        "ef77aba6-7ed4-421d-926a-93804ab96733",
 					EntryType: enum.Login,
@@ -371,11 +398,14 @@ func TestEntryService_Edit(t *testing.T) {
 				extRepositoryMock,
 				loggerMock,
 			)
-			err := l.Edit(tt.args.ctx, tt.args.command)
+			got, err := l.Edit(tt.args.ctx, tt.args.command)
 			if tt.wantErr != nil {
 				if !errors.Is(err, tt.wantErr) {
 					t.Errorf("Edit() error expectation: got = %v, want %v", err, tt.wantErr)
 				}
+			}
+			if !assert.Equal(t, got, tt.want) {
+				t.Errorf("Edit() got = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -538,7 +568,7 @@ func TestEntryService_Detail(t *testing.T) {
 		name          string
 		args          args
 		mockBehaviour func(ctx context.Context, command command.DetailEntryCommand)
-		want          command_response.DetailEntryCommandResponse
+		want          command_response.DetailEntryResponse
 		wantErr       error
 	}{
 		{
@@ -566,7 +596,7 @@ func TestEntryService_Detail(t *testing.T) {
 				entryRepositoryMock.EXPECT().GetById(ctx, "225de857-71c5-452f-96f7-ff385d808083").Return(entryMock, nil)
 				encryptorMock.EXPECT().Decrypt(encryptedData, masterPass).Return(decryptedData, nil)
 			},
-			want: command_response.DetailEntryCommandResponse{
+			want: command_response.DetailEntryResponse{
 				Id:        "225de857-71c5-452f-96f7-ff385d808083",
 				EntryType: enum.Login,
 				UpdatedAt: time.Date(2024, time.March, 10, 12, 0, 0, 0, time.UTC),

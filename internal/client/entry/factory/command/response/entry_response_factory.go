@@ -19,7 +19,7 @@ func NewEntryResponseFactory() *EntryResponseFactory {
 	return &EntryResponseFactory{}
 }
 
-func (f *EntryResponseFactory) CreateDetailResponseFromEntity(entry entity.Entry) (command_response.DetailEntryCommandResponse, error) {
+func (f *EntryResponseFactory) CreateDetailResponseFromEntity(entry entity.Entry) (command_response.DetailEntryResponse, error) {
 	var data interface{}
 
 	switch entry.EntryType {
@@ -27,23 +27,23 @@ func (f *EntryResponseFactory) CreateDetailResponseFromEntity(entry entity.Entry
 		data = &dto.LoginData{}
 		err := json.Unmarshal(entry.Data, data)
 		if err != nil {
-			return command_response.DetailEntryCommandResponse{}, fmt.Errorf("%w: %v", errors2.ErrInternalError, err)
+			return command_response.DetailEntryResponse{}, fmt.Errorf("%w: %v", errors2.ErrInternalError, err)
 		}
 	case enum.Card:
 		data = &dto.CardData{}
 		err := json.Unmarshal(entry.Data, data)
 		if err != nil {
-			return command_response.DetailEntryCommandResponse{}, fmt.Errorf("%w: %v", errors2.ErrInternalError, err)
+			return command_response.DetailEntryResponse{}, fmt.Errorf("%w: %v", errors2.ErrInternalError, err)
 		}
 	case enum.Text:
 		data = string(entry.Data)
 	case enum.Bin:
 		data = base64.StdEncoding.EncodeToString(entry.Data)
 	default:
-		return command_response.DetailEntryCommandResponse{}, fmt.Errorf("%w: %v", errors2.ErrInternalError, "data not compatible with any format")
+		return command_response.DetailEntryResponse{}, fmt.Errorf("%w: %v", errors2.ErrInternalError, "data not compatible with any format")
 	}
 
-	return command_response.DetailEntryCommandResponse{
+	return command_response.DetailEntryResponse{
 		Id:        entry.Id,
 		EntryType: entry.EntryType,
 		UpdatedAt: entry.UpdatedAt,

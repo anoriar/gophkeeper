@@ -50,67 +50,80 @@ func NewEntryService(
 	}
 }
 
-func (l *EntryService) Add(ctx context.Context, command command.AddEntryCommand) error {
+func (l *EntryService) Add(ctx context.Context, command command.AddEntryCommand) (command_response.DetailEntryResponse, error) {
 	masterPass, err := l.secretRepository.GetMasterPassword()
 
 	if err != nil {
 		if errors.Is(err, secret.ErrMasterPasswordNotFound) {
-			return fmt.Errorf("%w: %w", secret.ErrMasterPasswordNotFound, err)
+			return command_response.DetailEntryResponse{}, fmt.Errorf("%w: %w", secret.ErrMasterPasswordNotFound, err)
 		}
 		l.logger.Error("get master password error", zap.String("error", err.Error()))
-		return fmt.Errorf("%w: %w", sharedErrors.ErrInternalError, err)
+		return command_response.DetailEntryResponse{}, fmt.Errorf("%w: %w", sharedErrors.ErrInternalError, err)
 	}
 	entry, err := l.entryFactory.CreateFromAddCmd(command)
 	if err != nil {
 		l.logger.Error("create entry error", zap.String("error", err.Error()))
-		return fmt.Errorf("%w: %w", sharedErrors.ErrInternalError, err)
+		return command_response.DetailEntryResponse{}, fmt.Errorf("%w: %w", sharedErrors.ErrInternalError, err)
 	}
 	encodedData, err := l.encoder.Encrypt(entry.Data, masterPass)
 	if err != nil {
 		l.logger.Error("encrypt data error", zap.String("error", err.Error()))
-		return fmt.Errorf("%w: %w", sharedErrors.ErrInternalError, err)
+		return command_response.DetailEntryResponse{}, fmt.Errorf("%w: %w", sharedErrors.ErrInternalError, err)
 	}
+	responseEntity, err := l.responseFactory.CreateDetailResponseFromEntity(entry)
+	if err != nil {
+		l.logger.Error("create detail data error", zap.String("error", err.Error()))
+		return command_response.DetailEntryResponse{}, fmt.Errorf("%w: %w", sharedErrors.ErrInternalError, err)
+	}
+
 	entry.Data = encodedData
 	err = l.entryRepository.Add(ctx, entry)
 	if err != nil {
 		l.logger.Error("save data error", zap.String("error", err.Error()))
-		return fmt.Errorf("%w: %w", sharedErrors.ErrInternalError, err)
+		return command_response.DetailEntryResponse{}, fmt.Errorf("%w: %w", sharedErrors.ErrInternalError, err)
 	}
 
-	return nil
+	return responseEntity, nil
 }
 
-func (l *EntryService) Edit(ctx context.Context, command command.EditEntryCommand) error {
+func (l *EntryService) Edit(ctx context.Context, command command.EditEntryCommand) (command_response.DetailEntryResponse, error) {
 	masterPass, err := l.secretRepository.GetMasterPassword()
 	if err != nil {
 		if errors.Is(err, secret.ErrMasterPasswordNotFound) {
-			return fmt.Errorf("%w: %w", secret.ErrMasterPasswordNotFound, err)
+			return command_response.DetailEntryResponse{}, fmt.Errorf("%w: %w", secret.ErrMasterPasswordNotFound, err)
 		}
-		l.logger.Error("get master password error", zap.String("error", err.Error()))
-		return fmt.Errorf("%w: %w", sharedErrors.ErrInternalError, err)
+		l.logger.Error("save data error", zap.String("error", err.Error()))
+		return command_response.DetailEntryResponse{}, fmt.Errorf("%w: %w", sharedErrors.ErrInternalError, err)
 	}
 
 	entry, err := l.entryFactory.CreateFromEditCmd(command)
 	if err != nil {
-		l.logger.Error("edit entry error", zap.String("error", err.Error()))
-		return fmt.Errorf("%w: %w", sharedErrors.ErrInternalError, err)
+		l.logger.Error("save data error", zap.String("error", err.Error()))
+		return command_response.DetailEntryResponse{}, fmt.Errorf("%w: %w", sharedErrors.ErrInternalError, err)
 	}
 	encodedData, err := l.encoder.Encrypt(entry.Data, masterPass)
 	if err != nil {
-		l.logger.Error("encrypt data error", zap.String("error", err.Error()))
-		return fmt.Errorf("%w: %w", sharedErrors.ErrInternalError, err)
+		l.logger.Error("save data error", zap.String("error", err.Error()))
+		return command_response.DetailEntryResponse{}, fmt.Errorf("%w: %w", sharedErrors.ErrInternalError, err)
 	}
+
+	responseEntity, err := l.responseFactory.CreateDetailResponseFromEntity(entry)
+	if err != nil {
+		l.logger.Error("create detail data error", zap.String("error", err.Error()))
+		return command_response.DetailEntryResponse{}, fmt.Errorf("%w: %w", sharedErrors.ErrInternalError, err)
+	}
+
 	entry.Data = encodedData
 	err = l.entryRepository.Edit(ctx, entry)
 	if err != nil {
 		if errors.Is(err, sharedErrors.ErrEntryNotFound) {
-			return fmt.Errorf("%w: %w", sharedErrors.ErrEntryNotFound, err)
+			return command_response.DetailEntryResponse{}, fmt.Errorf("%w: %w", sharedErrors.ErrEntryNotFound, err)
 		}
-		l.logger.Error("edit data error", zap.String("error", err.Error()))
-		return fmt.Errorf("%w: %w", sharedErrors.ErrInternalError, err)
+		l.logger.Error("save data error", zap.String("error", err.Error()))
+		return command_response.DetailEntryResponse{}, fmt.Errorf("%w: %w", sharedErrors.ErrInternalError, err)
 	}
 
-	return nil
+	return responseEntity, nil
 }
 
 func (l *EntryService) Delete(ctx context.Context, command command.DeleteEntryCommand) error {
@@ -132,25 +145,25 @@ func (l *EntryService) Delete(ctx context.Context, command command.DeleteEntryCo
 	return nil
 }
 
-func (l *EntryService) Detail(ctx context.Context, command command.DetailEntryCommand) (command_response.DetailEntryCommandResponse, error) {
+func (l *EntryService) Detail(ctx context.Context, command command.DetailEntryCommand) (command_response.DetailEntryResponse, error) {
 	masterPass, err := l.secretRepository.GetMasterPassword()
 	if err != nil {
 		if errors.Is(err, secret.ErrMasterPasswordNotFound) {
-			return command_response.DetailEntryCommandResponse{}, fmt.Errorf("%w: %w", secret.ErrMasterPasswordNotFound, err)
+			return command_response.DetailEntryResponse{}, fmt.Errorf("%w: %w", secret.ErrMasterPasswordNotFound, err)
 		}
 		l.logger.Error("get master password error", zap.String("error", err.Error()))
-		return command_response.DetailEntryCommandResponse{}, fmt.Errorf("%w: %w", sharedErrors.ErrInternalError, err)
+		return command_response.DetailEntryResponse{}, fmt.Errorf("%w: %w", sharedErrors.ErrInternalError, err)
 	}
 
 	entry, err := l.entryRepository.GetById(ctx, command.Id)
 	if err != nil {
 		l.logger.Error("detail data error", zap.String("error", err.Error()))
-		return command_response.DetailEntryCommandResponse{}, fmt.Errorf("%w: %w", sharedErrors.ErrInternalError, err)
+		return command_response.DetailEntryResponse{}, fmt.Errorf("%w: %w", sharedErrors.ErrInternalError, err)
 	}
 	decryptedData, err := l.encoder.Decrypt(entry.Data, masterPass)
 	if err != nil {
 		l.logger.Error("decrypt data error", zap.String("error", err.Error()))
-		return command_response.DetailEntryCommandResponse{}, fmt.Errorf("%w: %w", sharedErrors.ErrInternalError, err)
+		return command_response.DetailEntryResponse{}, fmt.Errorf("%w: %w", sharedErrors.ErrInternalError, err)
 	}
 	entry.Data = decryptedData
 	return l.responseFactory.CreateDetailResponseFromEntity(entry)

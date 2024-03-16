@@ -23,13 +23,6 @@ import (
 	"github.com/anoriar/gophkeeper/internal/client/shared/config"
 )
 
-const (
-	loginFile = "./.data/entries/logins"
-	cardFile  = "./.data/entries/cards"
-	textFile  = "./.data/entries/texts"
-	binFile   = "./.data/entries/binaries"
-)
-
 // App missing godoc.
 type App struct {
 	Config               *config.Config
@@ -50,15 +43,18 @@ func NewApp(cnf *config.Config) (*App, error) {
 	gophkeeperHttpClient := client.NewHTTPClient(cnf.ServerAddress, logger)
 
 	userRepository := user.NewUserRepository(gophkeeperHttpClient)
-	secretRepository := secret.NewSecretRepository()
+	secretRepository, err := secret.NewSecretRepository(cnf.AuthTokenFilename, cnf.MasterPasswordFilename)
+	if err != nil {
+		return nil, err
+	}
 	authService := auth.NewAuthService(userRepository, secretRepository, logger)
 
 	aesEncoder := encoder.NewAesDataEncoder()
 
-	loginEntryRepository := entryRepositoryPkg.NewEntrySingleFileRepository(loginFile)
-	cardEntryRepository := entryRepositoryPkg.NewEntrySingleFileRepository(cardFile)
-	textEntryRepository := entryRepositoryPkg.NewEntrySingleFileRepository(textFile)
-	binEntryRepository := entryRepositoryPkg.NewEntrySingleFileRepository(binFile)
+	loginEntryRepository := entryRepositoryPkg.NewEntrySingleFileRepository(cnf.LoginFilename)
+	cardEntryRepository := entryRepositoryPkg.NewEntrySingleFileRepository(cnf.CardFilename)
+	textEntryRepository := entryRepositoryPkg.NewEntrySingleFileRepository(cnf.TextFilename)
+	binEntryRepository := entryRepositoryPkg.NewEntrySingleFileRepository(cnf.BinFilename)
 
 	extEntryRepository := entry_ext.NewEntryExtRepository(gophkeeperHttpClient)
 

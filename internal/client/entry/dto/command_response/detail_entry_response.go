@@ -7,7 +7,7 @@ import (
 	"github.com/anoriar/gophkeeper/internal/client/entry/enum"
 )
 
-type DetailEntryCommandResponse struct {
+type DetailEntryResponse struct {
 	Id        string          `json:"id"`
 	EntryType enum.EntryType  `json:"type"`
 	UpdatedAt time.Time       `json:"updatedAt"`

@@ -28,38 +28,38 @@ func NewEntryServiceProvider(loginService entry.EntryServiceInterface, cardServi
 	}
 }
 
-func (sp *EntryServiceProvider) Add(ctx context.Context, cmd command.AddEntryCommand) error {
+func (sp *EntryServiceProvider) Add(ctx context.Context, cmd command.AddEntryCommand) (command_response.DetailEntryResponse, error) {
 	service, err := sp.getService(cmd.EntryType)
 	if err != nil {
-		return err
+		return command_response.DetailEntryResponse{}, err
 	}
-	err = service.Add(ctx, cmd)
+	responseEntry, err := service.Add(ctx, cmd)
 	if err != nil {
-		return err
+		return command_response.DetailEntryResponse{}, err
 	}
-	return nil
+	return responseEntry, nil
 }
 
-func (sp *EntryServiceProvider) Edit(ctx context.Context, cmd command.EditEntryCommand) error {
+func (sp *EntryServiceProvider) Edit(ctx context.Context, cmd command.EditEntryCommand) (command_response.DetailEntryResponse, error) {
 	service, err := sp.getService(cmd.EntryType)
 	if err != nil {
-		return err
+		return command_response.DetailEntryResponse{}, err
 	}
-	err = service.Edit(ctx, cmd)
+	responseEntry, err := service.Edit(ctx, cmd)
 	if err != nil {
-		return err
+		return command_response.DetailEntryResponse{}, err
 	}
-	return nil
+	return responseEntry, nil
 }
 
-func (sp *EntryServiceProvider) Detail(ctx context.Context, cmd command.DetailEntryCommand) (command_response.DetailEntryCommandResponse, error) {
+func (sp *EntryServiceProvider) Detail(ctx context.Context, cmd command.DetailEntryCommand) (command_response.DetailEntryResponse, error) {
 	service, err := sp.getService(cmd.EntryType)
 	if err != nil {
-		return command_response.DetailEntryCommandResponse{}, err
+		return command_response.DetailEntryResponse{}, err
 	}
 	entryEntity, err := service.Detail(ctx, cmd)
 	if err != nil {
-		return command_response.DetailEntryCommandResponse{}, err
+		return command_response.DetailEntryResponse{}, err
 	}
 	return entryEntity, nil
 }

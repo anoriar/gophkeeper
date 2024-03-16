@@ -4,31 +4,34 @@ import (
 	"errors"
 	"io"
 	"os"
-)
-
-const (
-	secretDirname          = "./.data/secret/"
-	authTokenFilename      = ".token"
-	masterPasswordFilename = ".pass"
+	"path/filepath"
 )
 
 var ErrTokenNotFound = errors.New("auth token not found")
 var ErrMasterPasswordNotFound = errors.New("master password not found")
 
 type SecretRepository struct {
+	authTokenFileName      string
+	masterPasswordFileName string
 }
 
-func NewSecretRepository() *SecretRepository {
-	return &SecretRepository{}
+func NewSecretRepository(authTokenFilename string, masterPasswordFilename string) (*SecretRepository, error) {
+	authTokenDir := filepath.Dir(authTokenFilename)
+	masterPassDir := filepath.Dir(masterPasswordFilename)
+	err := mkdir(authTokenDir)
+	if err != nil {
+		return nil, err
+	}
+	err = mkdir(masterPassDir)
+	if err != nil {
+		return nil, err
+	}
+
+	return &SecretRepository{authTokenFileName: authTokenFilename, masterPasswordFileName: masterPasswordFilename}, nil
 }
 
 func (s SecretRepository) SaveAuthToken(token string) error {
-	err := s.mkdir()
-	if err != nil {
-		return err
-	}
-
-	file, err := os.OpenFile(secretDirname+authTokenFilename, os.O_WRONLY|os.O_CREATE, 0666)
+	file, err := os.OpenFile(s.authTokenFileName, os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
 		return err
 	}
@@ -43,7 +46,7 @@ func (s SecretRepository) SaveAuthToken(token string) error {
 }
 
 func (s SecretRepository) GetAuthToken() (string, error) {
-	file, err := os.OpenFile(secretDirname+authTokenFilename, os.O_RDONLY|os.O_CREATE, 0666)
+	file, err := os.OpenFile(s.authTokenFileName, os.O_RDONLY|os.O_CREATE, 0666)
 	if err != nil {
 		return "", err
 	}
@@ -62,11 +65,7 @@ func (s SecretRepository) GetAuthToken() (string, error) {
 }
 
 func (s SecretRepository) SaveMasterPassword(pass string) error {
-	err := s.mkdir()
-	if err != nil {
-		return err
-	}
-	file, err := os.OpenFile(secretDirname+masterPasswordFilename, os.O_WRONLY|os.O_CREATE, 0666)
+	file, err := os.OpenFile(s.masterPasswordFileName, os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
 		return err
 	}
@@ -81,7 +80,7 @@ func (s SecretRepository) SaveMasterPassword(pass string) error {
 }
 
 func (s SecretRepository) GetMasterPassword() (string, error) {
-	file, err := os.OpenFile(secretDirname+masterPasswordFilename, os.O_RDONLY|os.O_CREATE, 0666)
+	file, err := os.OpenFile(s.masterPasswordFileName, os.O_RDONLY|os.O_CREATE, 0666)
 	if err != nil {
 		return "", err
 	}
@@ -99,8 +98,8 @@ func (s SecretRepository) GetMasterPassword() (string, error) {
 	return string(content), nil
 }
 
-func (s SecretRepository) mkdir() error {
-	err := os.MkdirAll(secretDirname, 0755)
+func mkdir(dirName string) error {
+	err := os.MkdirAll(dirName, 0755)
 	if err != nil {
 		return err
 	}
