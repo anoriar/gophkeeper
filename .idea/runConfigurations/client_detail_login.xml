@@ -2,7 +2,7 @@
   <configuration default="false" name="client_detail_login" type="GoApplicationRunConfiguration" factoryName="Go Application">
     <module name="gophkeeper" />
     <working_directory value="$PROJECT_DIR$" />
-    <parameters value="detail -t login -i &quot;54493f7e-b64f-4831-8b38-691768a86d83&quot;" />
+    <parameters value="detail -t text -i &quot;39741eef-9166-4268-b87e-e793bd8d30f0&quot;" />
     <envs>
       <env name="SERVER_ADDRESS" value="http://localhost:8080" />
     </envs>

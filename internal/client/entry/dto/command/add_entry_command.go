@@ -23,15 +23,25 @@ func (command *AddEntryCommand) Validate() validation.ValidationErrors {
 	case enum.Login:
 		data, ok := command.Data.(dto.LoginData)
 		if !ok {
-			validationErrors = append(validationErrors, fmt.Errorf("data not compatible with any format"))
+			validationErrors = append(validationErrors, fmt.Errorf("data not compatible with login format"))
 		}
 		validationErrors = append(validationErrors, data.Validate()...)
 	case enum.Card:
 		data, ok := command.Data.(dto.CardData)
 		if !ok {
-			validationErrors = append(validationErrors, fmt.Errorf("data not compatible with any format"))
+			validationErrors = append(validationErrors, fmt.Errorf("data not compatible with card format"))
 		}
 		validationErrors = append(validationErrors, data.Validate()...)
+	case enum.Text:
+		_, ok := command.Data.(string)
+		if !ok {
+			validationErrors = append(validationErrors, fmt.Errorf("data not compatible with text format"))
+		}
+	case enum.Bin:
+		_, ok := command.Data.([]byte)
+		if !ok {
+			validationErrors = append(validationErrors, fmt.Errorf("data not compatible with binary format"))
+		}
 	default:
 		validationErrors = append(validationErrors, fmt.Errorf("data not compatible with any format"))
 	}

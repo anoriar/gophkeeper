@@ -15,10 +15,17 @@ import (
 type EntryServiceProvider struct {
 	loginService entry.EntryServiceInterface
 	cardService  entry.EntryServiceInterface
+	textService  entry.EntryServiceInterface
+	binService   entry.EntryServiceInterface
 }
 
-func NewEntryServiceProvider(loginService entry.EntryServiceInterface, cardService entry.EntryServiceInterface) *EntryServiceProvider {
-	return &EntryServiceProvider{loginService: loginService, cardService: cardService}
+func NewEntryServiceProvider(loginService entry.EntryServiceInterface, cardService entry.EntryServiceInterface, textService entry.EntryServiceInterface, binService entry.EntryServiceInterface) *EntryServiceProvider {
+	return &EntryServiceProvider{
+		loginService: loginService,
+		cardService:  cardService,
+		textService:  textService,
+		binService:   binService,
+	}
 }
 
 func (sp *EntryServiceProvider) Add(ctx context.Context, cmd command.AddEntryCommand) error {
@@ -99,6 +106,10 @@ func (sp *EntryServiceProvider) getService(entryType enum.EntryType) (entry.Entr
 		return sp.loginService, nil
 	case enum.Card:
 		return sp.cardService, nil
+	case enum.Text:
+		return sp.textService, nil
+	case enum.Bin:
+		return sp.binService, nil
 	default:
 		return nil, errors.New("not implemented cmd type")
 	}

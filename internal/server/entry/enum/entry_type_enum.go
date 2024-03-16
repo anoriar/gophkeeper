@@ -5,9 +5,11 @@ type EntryType string
 const (
 	Login EntryType = "login"
 	Card  EntryType = "card"
+	Text  EntryType = "text"
+	Bin   EntryType = "bin"
 )
 
-var AllEntryTypes = []EntryType{Login, Card}
+var AllEntryTypes = []EntryType{Login, Card, Text, Bin}
 
 func IsEntryType(value string) bool {
 	for _, v := range AllEntryTypes {

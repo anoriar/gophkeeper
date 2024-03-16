@@ -6,11 +6,12 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/anoriar/gophkeeper/internal/client/entry/enum"
+
 	"github.com/anoriar/gophkeeper/internal/client/shared/services/uuid"
 
 	"github.com/anoriar/gophkeeper/internal/client/entry/dto/repository/entry_ext"
 
-	"github.com/anoriar/gophkeeper/internal/client/entry/dto"
 	"github.com/anoriar/gophkeeper/internal/client/entry/dto/command"
 	"github.com/anoriar/gophkeeper/internal/client/entry/entity"
 	"github.com/anoriar/gophkeeper/internal/client/shared/errors"
@@ -25,7 +26,7 @@ func NewEntryFactory(uuidGen uuid.UUIDGeneratorInterface) *EntryFactory {
 }
 
 func (l *EntryFactory) CreateFromAddCmd(command command.AddEntryCommand) (entity.Entry, error) {
-	data, err := l.createData(command.Data)
+	data, err := l.createData(command.EntryType, command.Data)
 	if err != nil {
 		return entity.Entry{}, err
 	}
@@ -40,7 +41,7 @@ func (l *EntryFactory) CreateFromAddCmd(command command.AddEntryCommand) (entity
 }
 
 func (l *EntryFactory) CreateFromEditCmd(command command.EditEntryCommand) (entity.Entry, error) {
-	data, err := l.createData(command.Data)
+	data, err := l.createData(command.EntryType, command.Data)
 	if err != nil {
 		return entity.Entry{}, err
 	}
@@ -54,18 +55,30 @@ func (l *EntryFactory) CreateFromEditCmd(command command.EditEntryCommand) (enti
 	}, nil
 }
 
-func (l *EntryFactory) createData(data interface{}) ([]byte, error) {
-	switch data.(type) {
-	case dto.LoginData:
+func (l *EntryFactory) createData(entryType enum.EntryType, data interface{}) ([]byte, error) {
+	switch entryType {
+	case enum.Login:
 		dataBytes, err := json.Marshal(data)
 		if err != nil {
 			return nil, fmt.Errorf("%w: %v", errors.ErrInternalError, err)
 		}
 		return dataBytes, nil
-	case dto.CardData:
+	case enum.Card:
 		dataBytes, err := json.Marshal(data)
 		if err != nil {
 			return nil, fmt.Errorf("%w: %v", errors.ErrInternalError, err)
+		}
+		return dataBytes, nil
+	case enum.Text:
+		dataStr, ok := data.(string)
+		if !ok {
+			return nil, fmt.Errorf("%w: %v", errors.ErrInternalError, "data must be convertable to string")
+		}
+		return []byte(dataStr), nil
+	case enum.Bin:
+		dataBytes, ok := data.([]byte)
+		if !ok {
+			return nil, fmt.Errorf("%w: %v", errors.ErrInternalError, "data must be convertable to bytes")
 		}
 		return dataBytes, nil
 	default:

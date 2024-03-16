@@ -1,6 +1,7 @@
 package response
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 
@@ -24,12 +25,22 @@ func (f *EntryResponseFactory) CreateDetailResponseFromEntity(entry entity.Entry
 	switch entry.EntryType {
 	case enum.Login:
 		data = &dto.LoginData{}
+		err := json.Unmarshal(entry.Data, data)
+		if err != nil {
+			return command_response.DetailEntryCommandResponse{}, fmt.Errorf("%w: %v", errors2.ErrInternalError, err)
+		}
 	case enum.Card:
 		data = &dto.CardData{}
-	}
-	err := json.Unmarshal(entry.Data, data)
-	if err != nil {
-		return command_response.DetailEntryCommandResponse{}, fmt.Errorf("%w: %v", errors2.ErrInternalError, err)
+		err := json.Unmarshal(entry.Data, data)
+		if err != nil {
+			return command_response.DetailEntryCommandResponse{}, fmt.Errorf("%w: %v", errors2.ErrInternalError, err)
+		}
+	case enum.Text:
+		data = string(entry.Data)
+	case enum.Bin:
+		data = base64.StdEncoding.EncodeToString(entry.Data)
+	default:
+		return command_response.DetailEntryCommandResponse{}, fmt.Errorf("%w: %v", errors2.ErrInternalError, "data not compatible with any format")
 	}
 
 	return command_response.DetailEntryCommandResponse{

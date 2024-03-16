@@ -2,7 +2,7 @@
   <configuration default="false" name="client_sync_login" type="GoApplicationRunConfiguration" factoryName="Go Application">
     <module name="gophkeeper" />
     <working_directory value="$PROJECT_DIR$" />
-    <parameters value="sync -t login" />
+    <parameters value="sync -t card" />
     <envs>
       <env name="SERVER_ADDRESS" value="http://localhost:8080" />
     </envs>

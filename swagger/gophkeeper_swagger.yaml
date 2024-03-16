@@ -175,6 +175,8 @@ components:
       enum:
         - login
         - card
+        - text
+        - bin
       example: login
 
   securitySchemes:

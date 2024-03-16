@@ -26,6 +26,8 @@ import (
 const (
 	loginFile = "./.data/entries/logins"
 	cardFile  = "./.data/entries/cards"
+	textFile  = "./.data/entries/texts"
+	binFile   = "./.data/entries/binaries"
 )
 
 // App missing godoc.
@@ -55,6 +57,8 @@ func NewApp(cnf *config.Config) (*App, error) {
 
 	loginEntryRepository := entryRepositoryPkg.NewEntrySingleFileRepository(loginFile)
 	cardEntryRepository := entryRepositoryPkg.NewEntrySingleFileRepository(cardFile)
+	textEntryRepository := entryRepositoryPkg.NewEntrySingleFileRepository(textFile)
+	binEntryRepository := entryRepositoryPkg.NewEntrySingleFileRepository(binFile)
 
 	extEntryRepository := entry_ext.NewEntryExtRepository(gophkeeperHttpClient)
 
@@ -74,8 +78,25 @@ func NewApp(cnf *config.Config) (*App, error) {
 		extEntryRepository,
 		logger,
 	)
+	textEntryService := entry.NewEntryService(
+		entryFactoryPkg.NewEntryFactory(uuidGen),
+		textEntryRepository,
+		secretRepository,
+		aesEncoder,
+		extEntryRepository,
+		logger,
+	)
 
-	entryServiceProvider := service_provider.NewEntryServiceProvider(loginEntryService, cardEntryService)
+	binEntryService := entry.NewEntryService(
+		entryFactoryPkg.NewEntryFactory(uuidGen),
+		binEntryRepository,
+		secretRepository,
+		aesEncoder,
+		extEntryRepository,
+		logger,
+	)
+
+	entryServiceProvider := service_provider.NewEntryServiceProvider(loginEntryService, cardEntryService, textEntryService, binEntryService)
 
 	return &App{
 		Config:               cnf,

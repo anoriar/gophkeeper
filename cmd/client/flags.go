@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"flag"
@@ -187,6 +188,10 @@ func parseEntryType(entryType string) (enum.EntryType, error) {
 		return enum.Login, nil
 	case string(enum.Card):
 		return enum.Card, nil
+	case string(enum.Text):
+		return enum.Text, nil
+	case string(enum.Bin):
+		return enum.Bin, nil
 	default:
 		return "", errors.New("not valid entry type")
 	}
@@ -211,6 +216,14 @@ func parseDataAndEntryType(entryType string, data string, metaStr string) (enum.
 			return "", nil, json.RawMessage{}, err
 		}
 		return enum.Card, cardData, meta, nil
+	case string(enum.Text):
+		return enum.Text, data, meta, nil
+	case string(enum.Bin):
+		binData, err := base64.StdEncoding.DecodeString(data)
+		if err != nil {
+			return "", nil, json.RawMessage{}, err
+		}
+		return enum.Bin, binData, meta, nil
 	default:
 		return "", nil, json.RawMessage{}, errors.New("not valid entry type")
 	}
