@@ -1,0 +1,15 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="client_sync_login" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="gophkeeper" />
+    <working_directory value="$PROJECT_DIR$" />
+    <parameters value="sync -t login" />
+    <envs>
+      <env name="SERVER_ADDRESS" value="http://localhost:8080" />
+    </envs>
+    <kind value="DIRECTORY" />
+    <package value="github.com/anoriar/gophkeeper" />
+    <directory value="$PROJECT_DIR$/cmd/client" />
+    <filePath value="$PROJECT_DIR$" />
+    <method v="2" />
+  </configuration>
+</component>

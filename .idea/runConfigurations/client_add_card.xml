@@ -1,0 +1,15 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="client_add_card" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="gophkeeper" />
+    <working_directory value="$PROJECT_DIR$" />
+    <parameters value="add -t card -d {&quot;number&quot;:&quot;1245678&quot;,&quot;expireDate&quot;:&quot;03/28&quot;,&quot;holder&quot;:&quot;Test&quot;,&quot;cvv&quot;:&quot;123&quot;} -m {&quot;prop1&quot;: &quot;val1&quot;, &quot;prop2&quot;: &quot;val2&quot;}" />
+    <envs>
+      <env name="SERVER_ADDRESS" value="http://localhost:8080" />
+    </envs>
+    <kind value="DIRECTORY" />
+    <package value="github.com/anoriar/gophkeeper" />
+    <directory value="$PROJECT_DIR$/cmd/client" />
+    <filePath value="$PROJECT_DIR$" />
+    <method v="2" />
+  </configuration>
+</component>

@@ -1,0 +1,15 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="client_edit_login" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="gophkeeper" />
+    <working_directory value="$PROJECT_DIR$" />
+    <parameters value="edit -t login -i &quot;c3044529-0905-4ba5-ba77-2c1553ee753d&quot; -d &quot;{\&quot;login\&quot;: \&quot;test\&quot;, \&quot;password\&quot;: \&quot;pass\&quot;}&quot; -m &quot;{\&quot;prop12\&quot;: \&quot;val1\&quot;, \&quot;prop2\&quot;: \&quot;val2\&quot;}&quot;" />
+    <envs>
+      <env name="SERVER_ADDRESS" value="http://localhost:8080" />
+    </envs>
+    <kind value="DIRECTORY" />
+    <package value="github.com/anoriar/gophkeeper" />
+    <directory value="$PROJECT_DIR$/cmd/client" />
+    <filePath value="$PROJECT_DIR$" />
+    <method v="2" />
+  </configuration>
+</component>
