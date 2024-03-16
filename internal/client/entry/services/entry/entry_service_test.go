@@ -2,9 +2,12 @@ package entry
 
 import (
 	"context"
+	"encoding/base64"
 	"errors"
 	"testing"
 	"time"
+
+	"github.com/anoriar/gophkeeper/internal/client/entry/dto/repository/entry_ext"
 
 	"github.com/stretchr/testify/assert"
 
@@ -799,14 +802,362 @@ func TestEntryService_Sync(t *testing.T) {
 	tests := []struct {
 		name          string
 		args          args
-		mockBehaviour func()
+		mockBehaviour func(ctx context.Context, command command.SyncEntryCommand)
 		wantErr       error
 	}{
-		// TODO: Add test cases.
+		{
+			name: "success",
+			args: args{
+				ctx:     context.Background(),
+				command: command.SyncEntryCommand{EntryType: enum.Login},
+			},
+			mockBehaviour: func(ctx context.Context, command command.SyncEntryCommand) {
+				authToken := "cn8ewjf942tr49fehceo"
+				secretRepositoryMock.EXPECT().GetAuthToken().Return(authToken, nil)
+				entryRepositoryMock.EXPECT().GetList(ctx).Return([]entity.Entry{
+					{
+						Id:        "225de857-71c5-452f-96f7-ff385d808083",
+						EntryType: enum.Login,
+						UpdatedAt: time.Date(2023, time.March, 10, 12, 0, 0, 0, time.UTC),
+						IsDeleted: false,
+						Data:      []byte("data"),
+						Meta:      []byte(""),
+					},
+					{
+						Id:        "60d016e5-eae1-49f6-bb00-7d4709a38f4c",
+						EntryType: enum.Login,
+						UpdatedAt: time.Date(2024, time.March, 10, 12, 0, 0, 0, time.UTC),
+						IsDeleted: false,
+						Data:      []byte("data2"),
+						Meta:      []byte(""),
+					},
+				}, nil)
+
+				base64EncodedData1 := base64.StdEncoding.EncodeToString([]byte("data"))
+				base64EncodedData2 := base64.StdEncoding.EncodeToString([]byte("data2"))
+
+				syncResponse := entry_ext.SyncResponse{
+					Items: []entry_ext.SyncResponseItem{
+						{
+							OriginalId: "225de857-71c5-452f-96f7-ff385d808083",
+							UpdatedAt:  time.Date(2023, time.March, 10, 12, 0, 0, 0, time.UTC),
+							Data:       base64EncodedData1,
+							Meta:       []byte(""),
+						},
+						{
+							OriginalId: "60d016e5-eae1-49f6-bb00-7d4709a38f4c",
+							UpdatedAt:  time.Date(2024, time.March, 10, 12, 0, 0, 0, time.UTC),
+							Data:       base64EncodedData2,
+							Meta:       []byte(""),
+						},
+					},
+					SyncType: enum.Login,
+				}
+				syncRequestMock := entry_ext.SyncRequest{
+					SyncType: enum.Login,
+					Items: []entry_ext.SyncRequestItem{
+						{
+							OriginalId: "225de857-71c5-452f-96f7-ff385d808083",
+							UpdatedAt:  time.Date(2023, time.March, 10, 12, 0, 0, 0, time.UTC),
+							IsDeleted:  false,
+							Data:       base64EncodedData1,
+							Meta:       []byte(""),
+						},
+						{
+							OriginalId: "60d016e5-eae1-49f6-bb00-7d4709a38f4c",
+							UpdatedAt:  time.Date(2024, time.March, 10, 12, 0, 0, 0, time.UTC),
+							IsDeleted:  false,
+							Data:       base64EncodedData2,
+							Meta:       []byte(""),
+						},
+					},
+				}
+				extRepositoryMock.EXPECT().Sync(ctx, authToken, syncRequestMock).Return(syncResponse, nil)
+
+				newEntries := []entity.Entry{
+					{
+						Id:        "225de857-71c5-452f-96f7-ff385d808083",
+						EntryType: enum.Login,
+						UpdatedAt: time.Date(2023, time.March, 10, 12, 0, 0, 0, time.UTC),
+						IsDeleted: false,
+						Data:      []byte("data"),
+						Meta:      []byte(""),
+					},
+					{
+						Id:        "60d016e5-eae1-49f6-bb00-7d4709a38f4c",
+						EntryType: enum.Login,
+						UpdatedAt: time.Date(2024, time.March, 10, 12, 0, 0, 0, time.UTC),
+						IsDeleted: false,
+						Data:      []byte("data2"),
+						Meta:      []byte(""),
+					},
+				}
+				entryFactoryMock.EXPECT().CreateFromSyncResponse(syncResponse).Return(newEntries, nil)
+				entryRepositoryMock.EXPECT().Rewrite(ctx, newEntries).Return(nil)
+			},
+			wantErr: nil,
+		},
+		{
+			name: "get auth token not found error",
+			args: args{
+				ctx:     context.Background(),
+				command: command.SyncEntryCommand{EntryType: enum.Login},
+			},
+			mockBehaviour: func(ctx context.Context, command command.SyncEntryCommand) {
+				secretRepositoryMock.EXPECT().GetAuthToken().Return("", secret.ErrTokenNotFound)
+			},
+			wantErr: secret.ErrTokenNotFound,
+		},
+		{
+			name: "get auth token internal error",
+			args: args{
+				ctx:     context.Background(),
+				command: command.SyncEntryCommand{EntryType: enum.Login},
+			},
+			mockBehaviour: func(ctx context.Context, command command.SyncEntryCommand) {
+				secretRepositoryMock.EXPECT().GetAuthToken().Return("", sharedErrors.ErrInternalError)
+			},
+			wantErr: sharedErrors.ErrInternalError,
+		},
+		{
+			name: "get auth token internal error",
+			args: args{
+				ctx:     context.Background(),
+				command: command.SyncEntryCommand{EntryType: enum.Login},
+			},
+			mockBehaviour: func(ctx context.Context, command command.SyncEntryCommand) {
+				secretRepositoryMock.EXPECT().GetAuthToken().Return("", sharedErrors.ErrInternalError)
+			},
+			wantErr: sharedErrors.ErrInternalError,
+		},
+		{
+			name: "get list internal error",
+			args: args{
+				ctx:     context.Background(),
+				command: command.SyncEntryCommand{EntryType: enum.Login},
+			},
+			mockBehaviour: func(ctx context.Context, command command.SyncEntryCommand) {
+				authToken := "f982hf8hwie"
+				secretRepositoryMock.EXPECT().GetAuthToken().Return(authToken, nil)
+				entryRepositoryMock.EXPECT().GetList(ctx).Return(nil, errors.New("error"))
+			},
+			wantErr: sharedErrors.ErrInternalError,
+		},
+		{
+			name: "sync internal error",
+			args: args{
+				ctx:     context.Background(),
+				command: command.SyncEntryCommand{EntryType: enum.Login},
+			},
+			mockBehaviour: func(ctx context.Context, command command.SyncEntryCommand) {
+				authToken := "f982hf8hwie"
+				secretRepositoryMock.EXPECT().GetAuthToken().Return(authToken, nil)
+				entryRepositoryMock.EXPECT().GetList(ctx).Return([]entity.Entry{
+					{
+						Id:        "225de857-71c5-452f-96f7-ff385d808083",
+						EntryType: enum.Login,
+						UpdatedAt: time.Date(2023, time.March, 10, 12, 0, 0, 0, time.UTC),
+						IsDeleted: false,
+						Data:      []byte("data"),
+						Meta:      []byte(""),
+					},
+					{
+						Id:        "60d016e5-eae1-49f6-bb00-7d4709a38f4c",
+						EntryType: enum.Login,
+						UpdatedAt: time.Date(2024, time.March, 10, 12, 0, 0, 0, time.UTC),
+						IsDeleted: false,
+						Data:      []byte("data2"),
+						Meta:      []byte(""),
+					},
+				}, nil)
+				base64EncodedData1 := base64.StdEncoding.EncodeToString([]byte("data"))
+				base64EncodedData2 := base64.StdEncoding.EncodeToString([]byte("data2"))
+				syncRequestMock := entry_ext.SyncRequest{
+					SyncType: enum.Login,
+					Items: []entry_ext.SyncRequestItem{
+						{
+							OriginalId: "225de857-71c5-452f-96f7-ff385d808083",
+							UpdatedAt:  time.Date(2023, time.March, 10, 12, 0, 0, 0, time.UTC),
+							IsDeleted:  false,
+							Data:       base64EncodedData1,
+							Meta:       []byte(""),
+						},
+						{
+							OriginalId: "60d016e5-eae1-49f6-bb00-7d4709a38f4c",
+							UpdatedAt:  time.Date(2024, time.March, 10, 12, 0, 0, 0, time.UTC),
+							IsDeleted:  false,
+							Data:       base64EncodedData2,
+							Meta:       []byte(""),
+						},
+					},
+				}
+				extRepositoryMock.EXPECT().Sync(ctx, authToken, syncRequestMock).Return(entry_ext.SyncResponse{}, errors.New("error"))
+			},
+			wantErr: sharedErrors.ErrInternalError,
+		},
+		{
+			name: "create from sync response internal error",
+			args: args{
+				ctx:     context.Background(),
+				command: command.SyncEntryCommand{EntryType: enum.Login},
+			},
+			mockBehaviour: func(ctx context.Context, command command.SyncEntryCommand) {
+				authToken := "f982hf8hwie"
+				secretRepositoryMock.EXPECT().GetAuthToken().Return(authToken, nil)
+				entryRepositoryMock.EXPECT().GetList(ctx).Return([]entity.Entry{
+					{
+						Id:        "225de857-71c5-452f-96f7-ff385d808083",
+						EntryType: enum.Login,
+						UpdatedAt: time.Date(2023, time.March, 10, 12, 0, 0, 0, time.UTC),
+						IsDeleted: false,
+						Data:      []byte("data"),
+						Meta:      []byte(""),
+					},
+					{
+						Id:        "60d016e5-eae1-49f6-bb00-7d4709a38f4c",
+						EntryType: enum.Login,
+						UpdatedAt: time.Date(2024, time.March, 10, 12, 0, 0, 0, time.UTC),
+						IsDeleted: false,
+						Data:      []byte("data2"),
+						Meta:      []byte(""),
+					},
+				}, nil)
+				base64EncodedData1 := base64.StdEncoding.EncodeToString([]byte("data"))
+				base64EncodedData2 := base64.StdEncoding.EncodeToString([]byte("data2"))
+				syncResponse := entry_ext.SyncResponse{
+					Items: []entry_ext.SyncResponseItem{
+						{
+							OriginalId: "225de857-71c5-452f-96f7-ff385d808083",
+							UpdatedAt:  time.Date(2023, time.March, 10, 12, 0, 0, 0, time.UTC),
+							Data:       base64EncodedData1,
+							Meta:       []byte(""),
+						},
+						{
+							OriginalId: "60d016e5-eae1-49f6-bb00-7d4709a38f4c",
+							UpdatedAt:  time.Date(2024, time.March, 10, 12, 0, 0, 0, time.UTC),
+							Data:       base64EncodedData2,
+							Meta:       []byte(""),
+						},
+					},
+					SyncType: enum.Login,
+				}
+				syncRequestMock := entry_ext.SyncRequest{
+					SyncType: enum.Login,
+					Items: []entry_ext.SyncRequestItem{
+						{
+							OriginalId: "225de857-71c5-452f-96f7-ff385d808083",
+							UpdatedAt:  time.Date(2023, time.March, 10, 12, 0, 0, 0, time.UTC),
+							IsDeleted:  false,
+							Data:       base64EncodedData1,
+							Meta:       []byte(""),
+						},
+						{
+							OriginalId: "60d016e5-eae1-49f6-bb00-7d4709a38f4c",
+							UpdatedAt:  time.Date(2024, time.March, 10, 12, 0, 0, 0, time.UTC),
+							IsDeleted:  false,
+							Data:       base64EncodedData2,
+							Meta:       []byte(""),
+						},
+					},
+				}
+				extRepositoryMock.EXPECT().Sync(ctx, authToken, syncRequestMock).Return(syncResponse, nil)
+				entryFactoryMock.EXPECT().CreateFromSyncResponse(syncResponse).Return(nil, errors.New("error"))
+			},
+			wantErr: sharedErrors.ErrInternalError,
+		},
+		{
+			name: "rewrite internal error",
+			args: args{
+				ctx:     context.Background(),
+				command: command.SyncEntryCommand{EntryType: enum.Login},
+			},
+			mockBehaviour: func(ctx context.Context, command command.SyncEntryCommand) {
+				authToken := "f982hf8hwie"
+				secretRepositoryMock.EXPECT().GetAuthToken().Return(authToken, nil)
+				entryRepositoryMock.EXPECT().GetList(ctx).Return([]entity.Entry{
+					{
+						Id:        "225de857-71c5-452f-96f7-ff385d808083",
+						EntryType: enum.Login,
+						UpdatedAt: time.Date(2023, time.March, 10, 12, 0, 0, 0, time.UTC),
+						IsDeleted: false,
+						Data:      []byte("data"),
+						Meta:      []byte(""),
+					},
+					{
+						Id:        "60d016e5-eae1-49f6-bb00-7d4709a38f4c",
+						EntryType: enum.Login,
+						UpdatedAt: time.Date(2024, time.March, 10, 12, 0, 0, 0, time.UTC),
+						IsDeleted: false,
+						Data:      []byte("data2"),
+						Meta:      []byte(""),
+					},
+				}, nil)
+				base64EncodedData1 := base64.StdEncoding.EncodeToString([]byte("data"))
+				base64EncodedData2 := base64.StdEncoding.EncodeToString([]byte("data2"))
+				syncResponse := entry_ext.SyncResponse{
+					Items: []entry_ext.SyncResponseItem{
+						{
+							OriginalId: "225de857-71c5-452f-96f7-ff385d808083",
+							UpdatedAt:  time.Date(2023, time.March, 10, 12, 0, 0, 0, time.UTC),
+							Data:       base64EncodedData1,
+							Meta:       []byte(""),
+						},
+						{
+							OriginalId: "60d016e5-eae1-49f6-bb00-7d4709a38f4c",
+							UpdatedAt:  time.Date(2024, time.March, 10, 12, 0, 0, 0, time.UTC),
+							Data:       base64EncodedData2,
+							Meta:       []byte(""),
+						},
+					},
+					SyncType: enum.Login,
+				}
+				syncRequestMock := entry_ext.SyncRequest{
+					SyncType: enum.Login,
+					Items: []entry_ext.SyncRequestItem{
+						{
+							OriginalId: "225de857-71c5-452f-96f7-ff385d808083",
+							UpdatedAt:  time.Date(2023, time.March, 10, 12, 0, 0, 0, time.UTC),
+							IsDeleted:  false,
+							Data:       base64EncodedData1,
+							Meta:       []byte(""),
+						},
+						{
+							OriginalId: "60d016e5-eae1-49f6-bb00-7d4709a38f4c",
+							UpdatedAt:  time.Date(2024, time.March, 10, 12, 0, 0, 0, time.UTC),
+							IsDeleted:  false,
+							Data:       base64EncodedData2,
+							Meta:       []byte(""),
+						},
+					},
+				}
+				extRepositoryMock.EXPECT().Sync(ctx, authToken, syncRequestMock).Return(syncResponse, nil)
+				newEntries := []entity.Entry{
+					{
+						Id:        "225de857-71c5-452f-96f7-ff385d808083",
+						EntryType: enum.Login,
+						UpdatedAt: time.Date(2023, time.March, 10, 12, 0, 0, 0, time.UTC),
+						IsDeleted: false,
+						Data:      []byte("data"),
+						Meta:      []byte(""),
+					},
+					{
+						Id:        "60d016e5-eae1-49f6-bb00-7d4709a38f4c",
+						EntryType: enum.Login,
+						UpdatedAt: time.Date(2024, time.March, 10, 12, 0, 0, 0, time.UTC),
+						IsDeleted: false,
+						Data:      []byte("data2"),
+						Meta:      []byte(""),
+					},
+				}
+				entryFactoryMock.EXPECT().CreateFromSyncResponse(syncResponse).Return(newEntries, nil)
+				entryRepositoryMock.EXPECT().Rewrite(ctx, newEntries).Return(errors.New("error"))
+			},
+			wantErr: sharedErrors.ErrInternalError,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tt.mockBehaviour()
+			tt.mockBehaviour(tt.args.ctx, tt.args.command)
 			l := NewEntryService(
 				entryFactoryMock,
 				entryRepositoryMock,
