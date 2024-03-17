@@ -2,12 +2,18 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 
 	appPkg "github.com/anoriar/gophkeeper/internal/client/shared/app"
 	"github.com/anoriar/gophkeeper/internal/client/shared/config"
 	commandPkg "github.com/anoriar/gophkeeper/internal/client/shared/services/command"
+)
+
+const (
+	SuccessMessage = "status: success"
+	FailMessage    = "status: failed\n%v\n"
 )
 
 func main() {
@@ -38,10 +44,11 @@ func main() {
 	}
 
 	cmdExecutor := commandPkg.NewCommandExecutor(app)
-	err = cmdExecutor.ExecuteCommand(context.Background(), command)
+	response := cmdExecutor.ExecuteCommand(context.Background(), command)
+	responseStr, err := json.MarshalIndent(response, "", "    ")
 	if err != nil {
-		fmt.Printf("status: failed\n%v\n", err.Error())
+		fmt.Printf("%s %s", FailMessage, err.Error())
 	} else {
-		fmt.Printf("status: success")
+		fmt.Printf("%s", responseStr)
 	}
 }

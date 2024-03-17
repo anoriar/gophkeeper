@@ -43,7 +43,7 @@ func NewApp(cnf *config.Config) (*App, error) {
 	gophkeeperHttpClient := client.NewHTTPClient(cnf.ServerAddress, logger)
 
 	userRepository := user.NewUserRepository(gophkeeperHttpClient)
-	secretRepository, err := secret.NewSecretRepository(cnf.AuthTokenFilename, cnf.MasterPasswordFilename)
+	secretRepository, err := secret.NewSecretRepository(cnf.GetAuthTokenFilename(), cnf.GetMasterPasswordFilename())
 	if err != nil {
 		return nil, err
 	}
@@ -51,10 +51,10 @@ func NewApp(cnf *config.Config) (*App, error) {
 
 	aesEncoder := encoder.NewAesDataEncoder()
 
-	loginEntryRepository := entryRepositoryPkg.NewEntrySingleFileRepository(cnf.LoginFilename)
-	cardEntryRepository := entryRepositoryPkg.NewEntrySingleFileRepository(cnf.CardFilename)
-	textEntryRepository := entryRepositoryPkg.NewEntrySingleFileRepository(cnf.TextFilename)
-	binEntryRepository := entryRepositoryPkg.NewEntrySingleFileRepository(cnf.BinFilename)
+	loginEntryRepository := entryRepositoryPkg.NewEntrySingleFileRepository(cnf.GetLoginFilename())
+	cardEntryRepository := entryRepositoryPkg.NewEntrySingleFileRepository(cnf.GetCardFilename())
+	textEntryRepository := entryRepositoryPkg.NewEntrySingleFileRepository(cnf.GetTextFilename())
+	binEntryRepository := entryRepositoryPkg.NewEntrySingleFileRepository(cnf.GetBinFilename())
 
 	extEntryRepository := entry_ext.NewEntryExtRepository(gophkeeperHttpClient)
 

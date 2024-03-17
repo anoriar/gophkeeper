@@ -2,14 +2,16 @@ package command
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
+	"errors"
 
 	entryCommandPkg "github.com/anoriar/gophkeeper/internal/client/entry/dto/command"
 	"github.com/anoriar/gophkeeper/internal/client/shared/app"
-	"github.com/anoriar/gophkeeper/internal/client/shared/dto/command"
+	sharedCommand "github.com/anoriar/gophkeeper/internal/client/shared/dto/command"
 	userCommandPkg "github.com/anoriar/gophkeeper/internal/client/user/dto/command"
 )
+
+var ErrNotExecuted = errors.New("command did not executed")
+var ErrNotExists = errors.New("command not exists")
 
 type CommandExecutor struct {
 	app *app.App
@@ -18,88 +20,84 @@ type CommandExecutor struct {
 func NewCommandExecutor(app *app.App) *CommandExecutor {
 	return &CommandExecutor{app: app}
 }
+func (sp *CommandExecutor) prepareCommandResponse(payload interface{}, error error) sharedCommand.CommandResponse {
+	status := "success"
+	errorStr := ""
+	if error != nil {
+		errorStr = error.Error()
+		status = "fail"
+	}
+	return sharedCommand.CommandResponse{
+		Status:  status,
+		Error:   errorStr,
+		Payload: payload,
+	}
+}
 
-func (sp *CommandExecutor) ExecuteCommand(ctx context.Context, command command.CommandInterface) error {
+func (sp *CommandExecutor) ExecuteCommand(ctx context.Context, command sharedCommand.CommandInterface) sharedCommand.CommandResponse {
 	switch command.(type) {
 	case *userCommandPkg.RegisterCommand:
 		if cmd, ok := command.(*userCommandPkg.RegisterCommand); ok {
-			return sp.app.AuthService.Register(ctx, *cmd)
+			err := sp.app.AuthService.Register(ctx, *cmd)
+			return sp.prepareCommandResponse(nil, err)
 		}
-		return nil
+		return sp.prepareCommandResponse(nil, ErrNotExecuted)
 	case *userCommandPkg.LoginCommand:
 		if cmd, ok := command.(*userCommandPkg.LoginCommand); ok {
-			return sp.app.AuthService.Login(ctx, *cmd)
+			err := sp.app.AuthService.Login(ctx, *cmd)
+			return sp.prepareCommandResponse(nil, err)
 		}
-		return nil
+		return sp.prepareCommandResponse(nil, ErrNotExecuted)
 	case *entryCommandPkg.AddEntryCommand:
 		if cmd, ok := command.(*entryCommandPkg.AddEntryCommand); ok {
 			entry, err := sp.app.EntryServiceProvider.Add(ctx, *cmd)
 			if err != nil {
-				return err
+				return sp.prepareCommandResponse(nil, err)
 			}
-			response, err := json.MarshalIndent(entry, "", "    ")
-			if err != nil {
-				return err
-			}
-			fmt.Printf("%s\n", response)
+			return sp.prepareCommandResponse(entry, err)
 		}
-		return nil
+		return sp.prepareCommandResponse(nil, ErrNotExecuted)
 	case *entryCommandPkg.EditEntryCommand:
 		if cmd, ok := command.(*entryCommandPkg.EditEntryCommand); ok {
 			entry, err := sp.app.EntryServiceProvider.Edit(ctx, *cmd)
 			if err != nil {
-				return err
+				return sp.prepareCommandResponse(nil, err)
 			}
-			response, err := json.MarshalIndent(entry, "", "    ")
-			if err != nil {
-				return err
-			}
-			fmt.Printf("%s\n", response)
+			return sp.prepareCommandResponse(entry, err)
 		}
-		return nil
+		return sp.prepareCommandResponse(nil, ErrNotExecuted)
 	case *entryCommandPkg.DeleteEntryCommand:
 		if cmd, ok := command.(*entryCommandPkg.DeleteEntryCommand); ok {
-			return sp.app.EntryServiceProvider.Delete(ctx, *cmd)
+			err := sp.app.EntryServiceProvider.Delete(ctx, *cmd)
+			return sp.prepareCommandResponse(nil, err)
 		}
-		return nil
+		return sp.prepareCommandResponse(nil, ErrNotExecuted)
 	case *entryCommandPkg.DetailEntryCommand:
 		if cmd, ok := command.(*entryCommandPkg.DetailEntryCommand); ok {
 			entry, err := sp.app.EntryServiceProvider.Detail(ctx, *cmd)
 			if err != nil {
-				return err
+				return sp.prepareCommandResponse(nil, err)
 			}
-
-			response, err := json.MarshalIndent(entry, "", "    ")
-			if err != nil {
-				return err
-			}
-			fmt.Printf("%s\n", response)
+			return sp.prepareCommandResponse(entry, err)
 		}
-		return nil
+		return sp.prepareCommandResponse(nil, ErrNotExecuted)
 	case *entryCommandPkg.ListEntryCommand:
 		if cmd, ok := command.(*entryCommandPkg.ListEntryCommand); ok {
 			entries, err := sp.app.EntryServiceProvider.GetList(ctx, *cmd)
 			if err != nil {
-				return err
+				return sp.prepareCommandResponse(nil, err)
 			}
 
-			response, err := json.MarshalIndent(entries, "", "    ")
-			if err != nil {
-				return err
-			}
-			fmt.Printf("%s\n", response)
+			return sp.prepareCommandResponse(entries, err)
 		}
-		return nil
+		return sp.prepareCommandResponse(nil, ErrNotExecuted)
 	case *entryCommandPkg.SyncEntryCommand:
 		if cmd, ok := command.(*entryCommandPkg.SyncEntryCommand); ok {
 			err := sp.app.EntryServiceProvider.Sync(ctx, *cmd)
-			if err != nil {
-				return err
-			}
+			return sp.prepareCommandResponse(nil, err)
 		}
-		return nil
+		return sp.prepareCommandResponse(nil, ErrNotExecuted)
 	default:
-		return fmt.Errorf("command not exists")
+		return sp.prepareCommandResponse(nil, ErrNotExists)
 	}
-	return fmt.Errorf("command not exists")
 }

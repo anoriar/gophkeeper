@@ -1,36 +1,51 @@
 package config
 
 const (
-	defaultLoginFile = "./.data/entries/logins"
-	defaultCardFile  = "./.data/entries/cards"
-	defaultTextFile  = "./.data/entries/texts"
-	defaultBinFile   = "./.data/entries/binaries"
+	defaultDataDirName = "./.data"
+	defaultLoginFile   = "/entries/logins"
+	defaultCardFile    = "/entries/cards"
+	defaultTextFile    = "/entries/texts"
+	defaultBinFile     = "/entries/binaries"
 
-	defaultAuthTokenFilename      = "./.data/secret/.token"
-	defaultMasterPasswordFilename = "./.data/secret/.pass"
+	defaultAuthTokenFilename      = "/secret/.token"
+	defaultMasterPasswordFilename = "/secret/.pass"
 )
 
 // Config missing godoc.
 type Config struct {
-	ServerAddress          string `env:"SERVER_ADDRESS"`
-	LogLevel               string `env:"LOG_LEVEL"`
-	LoginFilename          string `env:"LOGIN_FILENAME"`
-	CardFilename           string `env:"CARD_FILENAME"`
-	TextFilename           string `env:"TEXT_FILENAME"`
-	BinFilename            string `env:"BIN_FILENAME"`
-	AuthTokenFilename      string `env:"AUTH_TOKEN_FILENAME"`
-	MasterPasswordFilename string `env:"MASTER_PASSWORD_FILENAME"`
+	ServerAddress string `env:"SERVER_ADDRESS"`
+	LogLevel      string `env:"LOG_LEVEL"`
+	DataDirName   string `env:"DATA_DIRNAME"`
 }
 
 // NewConfig missing godoc.
 func NewConfig() *Config {
 	return &Config{
-		LogLevel:               "info",
-		LoginFilename:          defaultLoginFile,
-		CardFilename:           defaultCardFile,
-		TextFilename:           defaultTextFile,
-		BinFilename:            defaultBinFile,
-		AuthTokenFilename:      defaultAuthTokenFilename,
-		MasterPasswordFilename: defaultMasterPasswordFilename,
+		LogLevel:    "info",
+		DataDirName: defaultDataDirName,
 	}
+}
+
+func (cnf *Config) GetAuthTokenFilename() string {
+	return cnf.DataDirName + defaultAuthTokenFilename
+}
+
+func (cnf *Config) GetMasterPasswordFilename() string {
+	return cnf.DataDirName + defaultMasterPasswordFilename
+}
+
+func (cnf *Config) GetLoginFilename() string {
+	return cnf.DataDirName + defaultLoginFile
+}
+
+func (cnf *Config) GetCardFilename() string {
+	return cnf.DataDirName + defaultCardFile
+}
+
+func (cnf *Config) GetTextFilename() string {
+	return cnf.DataDirName + defaultTextFile
+}
+
+func (cnf *Config) GetBinFilename() string {
+	return cnf.DataDirName + defaultBinFile
 }
