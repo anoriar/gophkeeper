@@ -1,0 +1,186 @@
+openapi: 3.0.3
+
+info:
+  title: Сервис Gophkeeper
+  description: Система хранения приватной информации
+  version: 1.0.0
+
+servers:
+  - url: /
+
+paths:
+  /api/user/register:
+    post:
+      description: Регистрация пользователя
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegisterRequest'
+
+      responses:
+        200:
+          description: пользователь успешно зарегистрирован и аутентифицирован
+          headers:
+            Authorization:
+              description: Токен авторизации
+              schema:
+                type: string
+                example: hdd8fh84t8if5h489rghe9jfisodjfpjerhgf4j0f
+        400:
+          description: неверный формат запроса
+        409:
+          description: логин уже занят
+        500:
+          description: внутренняя ошибка сервера
+
+  /api/user/login:
+    post:
+      description: Аутентификация пользователя
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLoginRequest'
+
+      responses:
+        200:
+          description: пользователь успешно аутентифицирован
+          headers:
+            Authorization:
+              description: Токен авторизации
+              schema:
+                type: string
+                example: hdd8fh84t8if5h489rghe9jfisodjfpjerhgf4j0f
+        400:
+          description: неверный формат запроса
+        401:
+          description: неверная пара логин/пароль
+        500:
+          description: внутренняя ошибка сервера
+
+  /api/entries/sync:
+    post:
+      description: Синхронизация данных по типу
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataSyncRequest'
+
+      responses:
+        200:
+          description: синхронизация прошла успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataSyncResponse'
+        400:
+          description: неверный формат запроса
+        401:
+          description: пользователь не авторизован
+        500:
+          description: внутренняя ошибка сервера
+
+components:
+  schemas:
+    UserRegisterRequest:
+      type: object
+      properties:
+        login:
+          type: string
+          example: test@gmail.com
+        password:
+          type: string
+          example: rj94th9ro
+
+    UserLoginRequest:
+      type: object
+      properties:
+        login:
+          type: string
+          example: test@gmail.com
+        password:
+          type: string
+          example: rj94th9ro
+
+    DataSyncRequest:
+      type: object
+      properties:
+        syncType:
+          $ref: "#/components/schemas/typeEnum"
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/EntryRequest'
+
+    EntryRequest:
+      type: object
+      properties:
+        originalId:
+          type: string
+          description: id элемента на клиенте
+          example: 0664b999-fdfc-4f2f-9c35-dace58da6400
+        data:
+          description: Данные, которые необходимо синхронизировать (закодированы в base64)
+          type: string
+          example: "YW8f11zfrW0gse6R9eiqc8IHSzOpl5EiURrg+COniWLEG/TXPV/h3Vcgarpl/j/ax9/UAAQxIjhFFJTmWWo="
+        isDeleted:
+          type: boolean
+          description: Определяет, была ли удалена запись на стороне клиента
+          example: false
+        updatedAt:
+          type: string
+          description: время обновления/создания записи в формате RFC3339
+          example: 2020-12-10T15:15:45+00:00
+        meta:
+          $ref: "#/components/schemas/Meta"
+
+    DataSyncResponse:
+      type: object
+      properties:
+        syncType:
+          $ref: "#/components/schemas/typeEnum"
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/EntryResponse'
+
+    EntryResponse:
+      type: object
+      properties:
+        originalId:
+          type: string
+          description: id элемента на клиенте
+          example: 0664b999-fdfc-4f2f-9c35-dace58da6400
+        data:
+          type: string
+          description: Данные, которые необходимо синхронизировать (закодированы в base64)
+          example: "YW8f11zfrW0gse6R9eiqc8IHSzOpl5EiURrg+COniWLEG/TXPV/h3Vcgarpl/j/ax9/UAAQxIjhFFJTmWWo="
+        updatedAt:
+          type: string
+          description: время обновления/создания записи в формате RFC3339
+          example: 2020-12-10T15:15:45+03:00
+        meta:
+          $ref: "#/components/schemas/Meta"
+
+    Meta:
+      type: object
+      description: метаданные к записи
+      additionalProperties:
+        type: string
+
+    typeEnum:
+      type: string
+      enum:
+        - login
+        - card
+        - text
+        - bin
+      example: login
+
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      name: Authorization
+      in: header

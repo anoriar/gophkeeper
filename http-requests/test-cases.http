@@ -1,0 +1,49 @@
+
+### register user
+POST {{baseUrl}}/api/user/register
+Content-Type: application/json
+
+{
+  "login": "test@gmail.com",
+  "password": "fh49t3jrojf"
+}
+
+### login user
+POST {{baseUrl}}/api/user/login
+Content-Type: application/json
+
+{
+  "login": "test@gmail.com",
+  "password": "fh49t3jrojf"
+}
+
+### sync entries
+POST {{baseUrl}}/api/entries/sync
+Content-Type: application/json
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTAyNjk0NzYsIlVzZXJJRCI6ImEyZTQ3Nzk5LTY1YjktNDFmMy1iMGE1LTk2ODUzNzQyMTM1MCJ9.aJppjXqHaFSOzPy-4a4-x7HJUHkijjCi0Kf8egrs8V4
+
+{
+  "syncType": "login",
+  "items": [
+    {
+      "originalId": "0bc6c22e-d8b5-4057-9d28-eb5b7a233364",
+      "data": "MX1mUs+puMP3FNlWITgzf5vS2JmcsVu/AivvxURLiQaPQJIxeVbF5/zGUBNVWuW5kzWhHKAi4E+gtoQ8Y9k=",
+      "isDeleted": false,
+      "updatedAt": "2020-12-10T15:15:45+00:00",
+      "meta": {
+        "property1": "string",
+        "property2": "string"
+      }
+    },
+    {
+      "originalId": "3da6111c-6316-4993-aeff-74a2c3f345f9",
+      "data": "MX1mUs+puMP3FNlWITgzf5vS2JmcsVu/AivvxURLiQaPQJIxeVbF5/zGUBNVWuW5kzWhHKAi4E+gtoQ8Y9k=",
+      "isDeleted": false,
+      "updatedAt": "2020-12-10T15:15:45+00:00",
+      "meta": {
+        "property1": "string",
+        "property2": "string"
+      }
+    }
+  ]
+}
